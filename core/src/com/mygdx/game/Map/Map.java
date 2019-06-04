@@ -3,25 +3,30 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class Map {
     private int width, height;
    // private Paint p =new Paint();
     private int countHalls;
-    Array<Room> map_room = new Array<Room>();
-    Array<Wall> map_walls = new Array<Wall>();
+    public ArrayList<Room> map_room = new ArrayList<Room>();
+    public Array<Wall> map_walls = new Array<Wall>();
     private int size;
 
 
-    private Texture floor, d1,d2;
+    private Texture floor, d1,d2, wall;
 
 
-    public Map(int width, int height, Texture floor, int size, Texture d1,Texture d2){
+    public Map(int width, int height, Texture floor, int size, Texture d1,Texture d2, Texture wall){
         this.width = width;
         this.height =height;
         this.floor = floor;
         this.size = size;
         this.d1 = d1;
         this.d2 = d2;
+        this.wall = wall;
     }
 
     private void create(Hall hall) {
@@ -51,7 +56,7 @@ public class Map {
 
 
         }
-        Room room = new Room(x, y, w, h, size,floor);
+        Room room = new Room(x, y, w, h, size,floor, wall);
         boolean intersection = true;
         for (Room r : map_room) {
             if (r.intersect(room)) intersection = false;
@@ -79,7 +84,7 @@ public class Map {
             }
             room.intersectionHall(hall, idHall);
             map_room.add(room);
-           // room.addEnemies(d1,d2);
+            room.addEnemies(d1,d2);
             addHall(room);
         } else hall.moreWalls = true;
     }
@@ -87,7 +92,7 @@ public class Map {
     private Room first(){
         int w = 3 + (int)(Math.random()*100)%5;
         int h = 3 + (int)(Math.random()*100)%5;
-        return  new Room((width/2-(w/2)*size), (height/2)-(h/2)*size,w,h,size,floor);
+        return  new Room((width/2-(w/2)*size), (height/2)-(h/2)*size,w,h,size,floor,wall);
     }
 
     private Hall createHall(Room r, int id) {
@@ -119,7 +124,7 @@ public class Map {
 
 
         }
-        hall = new Hall(x,y,w,h,size,floor);
+        hall = new Hall(x,y,w,h,size,floor,wall);
         return hall;
     }
 
@@ -147,7 +152,7 @@ public class Map {
     private void addHall(Room r){
         if(!r.hallCreated) {
             r.hallCreated = true;
-            if(map_room.size==1) r.numberOfHalls = 4; else
+            if(map_room.size()==1) r.numberOfHalls = 4; else
                 r.numberOfHalls = r.numberOfHalls();
             if(r.numberOfHalls==6) r.numberOfHalls++;
             countHalls -= r.numberOfHalls;
@@ -174,35 +179,47 @@ public class Map {
                     r.room_hall.add(hall);
 
                 }
-                int a = 0;
-                for (Hall h : r.room_hall) {
+
+                Iterator<Hall> i = r.room_hall.iterator();
+                while (i.hasNext()) {
+                    Hall h = i.next();
                     if(!h.roomCreated)
                         create(h);
                     if(h.moreWalls){
                         r.idOfHalls[h.id]=true;
-                        r.room_hall.removeIndex(a);
+                        i.remove();
+                        //r.room_hall.remove(h);
 
-                    } a++;
+                    }
                 }
+
+
+                /*for (Hall h : r.room_hall) {
+                    if(!h.roomCreated)
+                        create(h);
+                    if(h.moreWalls){
+                        r.idOfHalls[h.id]=true;
+                        r.room_hall.remove(h);
+
+                    }
+                } */
             }
         }
     }
 
-    public void drawMap(SpriteBatch batch, ShapeRenderer shape){
-        batch.begin();
+    public void drawMap(SpriteBatch batch){
+
+        for(Wall w:map_walls){
+            w.drawWall(batch);
+        }
         for(Room r:map_room){
-            r.drawRoom(batch, shape);
+            r.drawRoom(batch);
             for(Hall hall:r.room_hall){
-                hall.drawHall(batch, shape);
+                hall.drawHall(batch);
             }
         }
-        batch.end();
 
-        shape.begin(ShapeRenderer.ShapeType.Filled);
-        for(Wall w:map_walls){
-            w.drawWall(shape);
-        }
-        shape.end();
+
     }
 
 

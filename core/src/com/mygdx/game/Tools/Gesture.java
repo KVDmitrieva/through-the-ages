@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 public class Gesture implements GestureDetector.GestureListener {
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
+
         return false;
     }
 

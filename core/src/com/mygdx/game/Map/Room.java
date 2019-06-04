@@ -6,17 +6,21 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.game.Sprite.Enemy;
 
-class Room {
-    int x, y, width, height;
+import java.util.ArrayList;
+
+
+public class Room {
+    public int x, y, width, height;
     boolean[] idOfHalls = new boolean[4];
-    Array<Hall> room_hall = new Array<Hall>();
+    ArrayList<Hall> room_hall = new ArrayList<Hall>();
     int numberOfHalls;
     boolean hallCreated = false;
-    Texture bitmap;
-    int size;
-   // private Rect sourceRect;
-    // List<Enemy> enemies = new ArrayList<>();
+    Texture bitmap, wall;
+    public int size;
+    public ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+
     //walls cor
     private int xl0, yl0, xr0, yr0, xl1, yl1, xr1, yr1,
             xl2, yl2, xr2, yr2, xl3, yl3, xr3, yr3;
@@ -24,7 +28,7 @@ class Room {
             hxl2 = 0, hyl2 = 0, hxr2 = 0, hyr2 = 0, hxl3 = 0, hyl3 = 0, hxr3 = 0, hyr3 = 0;
 
 
-    Room(int x, int y, int width, int height, int size, Texture image) {
+    Room(int x, int y, int width, int height, int size, Texture image, Texture wall) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -33,8 +37,8 @@ class Room {
             idOfHalls[i] = true;
         }
         bitmap = image;
+        this.wall = wall;
         this.size = size;
-      //  sourceRect = new Rect(0, 0, size * width, size * height);
     }
 
     int numberOfHalls() {
@@ -101,41 +105,43 @@ class Room {
     }
 
     void addWall(Array<Wall> walls) {
-        if (idOfHalls[0]) walls.add(new Wall(xl0, yl0, xr0, yr0));
+        if (idOfHalls[0]) walls.add(new Wall(xl0, yl0, xr0, yr0,wall));
         else {
-            walls.add(new Wall(xl0, yl0, hxl0, hyr0));
-            walls.add(new Wall(hxr0, hyl0, xr0, yr0));
+            walls.add(new Wall(xl0, yl0, hxl0, hyr0,wall));
+            walls.add(new Wall(hxr0, hyl0, xr0, yr0,wall));
         }
-        if (idOfHalls[1]) walls.add(new Wall(xl1, yl1, xr1, yr1));
+        if (idOfHalls[1]) walls.add(new Wall(xl1, yl1, xr1, yr1,wall));
         else {
-            walls.add(new Wall(xl1, yl1, hxr1, hyl1));
-            walls.add(new Wall(hxl1, hyr1, xr1, yr1));
+            walls.add(new Wall(xl1, yl1, hxr1, hyl1,wall));
+            walls.add(new Wall(hxl1, hyr1, xr1, yr1,wall));
         }
-        if (idOfHalls[2]) walls.add(new Wall(xl2, yl2, xr2, yr2));
+        if (idOfHalls[2]) walls.add(new Wall(xl2, yl2, xr2, yr2,wall));
         else {
-            walls.add(new Wall(xl2, yl2, hxl2, hyr2));
-            walls.add(new Wall(hxr2, hyl2, xr2, yr2));
+            walls.add(new Wall(xl2, yl2, hxl2, hyr2,wall));
+            walls.add(new Wall(hxr2, hyl2, xr2, yr2,wall));
 
         }
-        if (idOfHalls[3]) walls.add(new Wall(xl3, yl3, xr3, yr3));
+        if (idOfHalls[3]) walls.add(new Wall(xl3, yl3, xr3, yr3,wall));
         else {
-            walls.add(new Wall(xl3, yl3, hxr3, hyl3));
-            walls.add(new Wall(hxl3, hyr3, xr3, yr3));
+            walls.add(new Wall(xl3, yl3, hxr3, hyl3,wall));
+            walls.add(new Wall(hxl3, hyr3, xr3, yr3,wall));
         }
     }
 
-    /*    void addEnemies(Bitmap d1, Bitmap d2){
+        void addEnemies(Texture d1, Texture d2){
             int number = width*height/5;
             for(int i = 0; i<number; i++){
                 float xS = x+size/2+((float)(Math.random()*1000)%width)*size;
 
                 float yS = y+size/2+((float)(Math.random()*1000)%height)*size;
-                if(xS>x&&xS+size<x+width*size&&yS+size<y+height*size&&yS>y){
+                if(xS>x&&xS+1.2f*size<x+width*size&&yS+size<y+height*size&&yS>y){
                     boolean noneIntersect = true;
                     if(enemies.size()>0){
                         for(Enemy enemy:enemies){
-                            if(enemy.x>=xS&&enemy.x<=xS+enemy.spriteWidth||enemy.x+enemy.spriteWidth>=xS&&enemy.x+enemy.spriteWidth<=xS+enemy.spriteWidth){
-                                if(enemy.y>=yS&&enemy.y<=yS+enemy.spriteHeight||enemy.y+enemy.spriteHeight>=yS&&enemy.y+enemy.spriteHeight<=yS+enemy.spriteWidth){
+                            if(enemy.x>=xS&&enemy.x<=xS+enemy.spriteW||
+                                    enemy.x+enemy.spriteW>=xS&&enemy.x+enemy.spriteW<=xS+enemy.spriteW){
+                                if(enemy.y>=yS&&enemy.y<=yS+enemy.spriteH||
+                                        enemy.y+enemy.spriteH>=yS&&enemy.y+enemy.spriteH<=yS+enemy.spriteW){
                                     noneIntersect = false;
                                 }
                             }
@@ -144,14 +150,15 @@ class Room {
 
                     if(noneIntersect){
                         if (Math.random()*100<50) {
-                            enemies.add( new Enemy(d1, xS,yS,7, 5, 4, 100, 2, 10, 10, 1));
+                            enemies.add( new Enemy(d1, xS,yS,7, 5, 4, 100, 2, 10, 10, 1,size));
                         }
                         else
-                            enemies.add(new Enemy(d2,xS,yS,7, 5, 3, 150, 2, 15, 10, 2));
+                            enemies.add(new Enemy(d2,xS,yS,7, 5, 3, 150, 2, 15, 10, 2,size));
 
                     }}}
 
         }
+
         void moveEnemiesX(int velocity){
             for(Enemy e: enemies)
                 e.x+=velocity;
@@ -160,13 +167,10 @@ class Room {
             for(Enemy e: enemies)
                 e.y+=velocity;
         }
-    */
-    void drawRoom(SpriteBatch batch, ShapeRenderer shape) {
-       // batch.draw(bitmap, (float)x, (float)y,0,0, width * size, height * size);
+
+    void drawRoom(SpriteBatch batch) {
         batch.draw(bitmap, x,y,width*size, height*size, 0,0,width*bitmap.getWidth()/24, height*bitmap.getHeight()/24, false, false);
 
-       // shape.setColor(0.2f, 0.2f, 0.2f, 1);
-       // shape.rect((float)x, (float)y,  width * size,  height * size);
     }
 
 }

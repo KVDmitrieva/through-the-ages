@@ -7,15 +7,16 @@ import com.badlogic.gdx.utils.Array;
 
 class Hall {
     int x, y, width, height, id, size;
-    Texture bitmap;
+    Texture bitmap, wall;
 
-    Hall(int x, int y, int width, int height, int size, Texture image){
+    Hall(int x, int y, int width, int height, int size, Texture image, Texture wall){
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.size = size;
         bitmap = image;
+        this.wall = wall;
     }
 
 
@@ -48,20 +49,18 @@ class Hall {
 
     void addWall(Array<Wall> walls){
         if(id%2==1){
-            walls.add(new Wall(xl0, yl0, xr0, yr0));
-            walls.add(new Wall(xl2, yl2, xr2, yr2));
+            walls.add(new Wall(xl0, yl0, xr0, yr0,wall));
+            walls.add(new Wall(xl2, yl2, xr2, yr2,wall));
         }
         else{
-            walls.add(new Wall(xl3, yl3, xr3, yr3));
-            walls.add(new Wall(xl1, yl1, xr1, yr1));
+            walls.add(new Wall(xl3, yl3, xr3, yr3,wall));
+            walls.add(new Wall(xl1, yl1, xr1, yr1,wall));
         }
     }
 
-    void drawHall(SpriteBatch batch, ShapeRenderer shape){
-     //   batch.draw(bitmap, x, y, 0,0,width*size, height*size);
+    void drawHall(SpriteBatch batch){
+
         batch.draw(bitmap, x,y,width*size, height*size, 0,0,width*bitmap.getWidth()/24, height*bitmap.getHeight()/24, false, false);
 
-        // shape.setColor(0.2f, 0.2f, 0.2f, 1);
-        //shape.rect(x, y,width*size, height*size);
     }
 }
