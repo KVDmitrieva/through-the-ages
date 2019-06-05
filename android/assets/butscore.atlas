@@ -1,0 +1,13 @@
+
+butscore.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+butscore
+  rotate: false
+  xy: 1, 538
+  size: 659, 120
+  orig: 659, 120
+  offset: 0, 0
+  index: -1

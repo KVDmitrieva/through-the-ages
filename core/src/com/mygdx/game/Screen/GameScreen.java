@@ -1,10 +1,16 @@
 package com.mygdx.game.Screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.game.MainClass;
 import com.mygdx.game.Map.Door;
@@ -13,39 +19,50 @@ import com.mygdx.game.Map.Room;
 import com.mygdx.game.Map.Wall;
 import com.mygdx.game.Sprite.Characters;
 import com.mygdx.game.Sprite.Enemy;
+import com.mygdx.game.Tools.Gesture;
 import com.mygdx.game.Tools.JoyStick;
+import com.mygdx.game.Tools.MyButton;
+import com.mygdx.game.Tools.MyDatabase;
 
 import java.util.Iterator;
 
 
-public class GameScreen implements Screen {
+public class GameScreen implements Screen{
 
-    public static int LEVEL = 0;
-    public static int SCORE = 0;
-    public static int ENEMIES = 0;
+    public static int LEVEL;
+    public static int SCORE ;
+    public static int ENEMIES;
 
 
     private MainClass mainClass;
-    private Texture floor, d1, d2, wall, character, attack, health, def, doors;
+    private Texture floor, d1, d2, wall, character, attack, health,
+            def, doors, white, red, gameover;
     private int width, height, size, velocity;
-    Map map;
-    OrthographicCamera camera;
-    JoyStick joyStick;
-    Stage stage;
-    Characters player;
-    Enemy attacker;
-    Door door;
-
+    private GlyphLayout layout;
+    private Map map;
+    private OrthographicCamera camera;
+    private JoyStick joyStick;
+    private Stage stage;
+    private Characters player;
+    private Enemy attacker;
+    private Door door;
+    private BitmapFont bitmapFont;
     private float xStat, yStat;
     private boolean healths = false, attacks = false, defs = false;
     private int fpsH = 0, fpsA = 0, fpsD = 0;
+    private MyButton exit;
 
-    public GameScreen(MainClass mainClass) {
+     GameScreen(final MainClass mainClass) {
         this.mainClass = mainClass;
+        SCORE = 0;
+        LEVEL = 1;
+        ENEMIES = 0;
 
 
         width = Gdx.app.getGraphics().getWidth();
         height = Gdx.app.getGraphics().getHeight();
+        bitmapFont = new BitmapFont();
+
         camera = new OrthographicCamera(width, height);
         camera.position.x = (float) width / 2;
         camera.position.y = (float) height / 2;
@@ -54,7 +71,8 @@ public class GameScreen implements Screen {
         size = width / 5;
         velocity = width / 100;
         joyStick = new JoyStick(30, 30);
-
+        layout = new GlyphLayout(bitmapFont, "hello");
+        Gesture gesture = new Gesture(joyStick);
 
         floor = new Texture("floor1.png");
         wall = new Texture("wall.png");
@@ -65,16 +83,38 @@ public class GameScreen implements Screen {
         attack = new Texture("atack.png");
         def = new Texture("def.png");
         health = new Texture("health.png");
+        red = new Texture("red.png");
+        white = new Texture("white.png");
+        gameover = new Texture("gameover.png");
 
         map = new Map(width, height, floor, size, d1, d2, wall);
         map.generate(8);
         createDoor();
 
-        player = new Characters(character, (width / 2), (height / 2), 7, 6, 7, size);
+        player = new Characters(character, (float)(width / 2),(float) (height / 2), 7, 6, 7, size);
 
+        exit = new MyButton("exitbut.atlas", "exitbut.json");
+        getParamsForButtons();
+        exit.addListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y,
+                                      int pointer, int button) {
+                MyDatabase db = new MyDatabase();
+                if(SCORE!=0)db.pushData();
+                mainClass.setScreen(new MainMenu(mainClass));
+                return true;
+            }
+
+        });
         stage = new Stage(mainClass.screenPort, mainClass.batch);
         stage.addActor(joyStick);
-        Gdx.input.setInputProcessor(stage);
+        stage.addActor(exit);
+        Gdx.input.setInputProcessor(new GestureDetector(gesture));
+
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(new GestureDetector(gesture));
+        multiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(multiplexer);
+
 
     }
 
@@ -88,15 +128,19 @@ public class GameScreen implements Screen {
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        if (intersectDoor()) {generate(); LEVEL++; SCORE+=50;}
         moveCamera();
         camera.update();
         mainClass.batch.setProjectionMatrix(camera.combined);
         mainClass.batch.begin();
+        if(player.health>0){
         map.drawMap(mainClass.batch);
         door.drawObject(mainClass.batch);
         onDrawEnemy();
         drawStat();
-        player.draw(mainClass.batch);
+        drawHealth();
+        player.draw(mainClass.batch);}else
+        endOfGame();
         mainClass.batch.end();
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
@@ -135,6 +179,8 @@ public class GameScreen implements Screen {
         def.dispose();
         health.dispose();
         attack.dispose();
+        red.dispose();
+        white.dispose();
     }
 
 
@@ -187,10 +233,11 @@ public class GameScreen implements Screen {
             Iterator<Enemy> i = r.enemies.iterator();
             while (i.hasNext()) {
                 Enemy e = i.next();
-                if (player.x + player.spriteW / 4 <= e.x + e.spriteW
-                        && player.x + 3 * player.spriteW / 4 >= e.x
-                        && player.y + player.spriteH / 2 <= e.y + e.spriteH
-                        && player.y + player.spriteH / 2 >= e.y) {
+                if (((player.x + player.spriteW <= e.x + e.spriteW&&player.x + player.spriteW >= e.x)||
+                        (player.x  <= e.x + e.spriteW&&player.x>= e.x))
+                        && (((player.y + 3*player.spriteH / 4 <= e.y + e.spriteH)
+                        && player.y + 3*player.spriteH / 4 >= e.y)||(player.y  <= e.y + e.spriteH)
+                        && player.y >= e.y)) {
                     attacker = e;
                     return true;
                 }
@@ -213,18 +260,18 @@ public class GameScreen implements Screen {
                 y1 = player.y, y2 = player.y + player.spriteH;
         for (Wall w : map.map_walls) {
             if (dir == 0) {
-                if (x1 - 5 >= w.x1 && x1 - 5 <= w.x2 && (y1 <= w.y2 && y1 >= w.y1 || y2 >= w.y1 && y2 <= w.y2))
+                if (x1 - 3 >= w.x1 && x1 - 3 <= w.x2 && (y1 <= w.y2 && y1 >= w.y1 || y2 >= w.y1 && y2 <= w.y2))
                     oneMore = true;
             } else if (dir == 6) {
-                if (y1 - 5 >= w.y1 && y1 - 5 <= w.y2 && (x1 <= w.x2 && x1 >= w.x1 || x2 <= w.x2 && x2 >= w.x1))
+                if (y1 - 3 >= w.y1 && y1 - 3 <= w.y2 && (x1 <= w.x2 && x1 >= w.x1 || x2 <= w.x2 && x2 >= w.x1))
                     oneMore = true;
 
             } else if (dir == 4) {
-                if (x2 + 5 >= w.x1 && x2 + 5 <= w.x2 && (y1 <= w.y2 && y1 >= w.y1 || y2 >= w.y1 && y2 <= w.y2))
+                if (x2 + 3 >= w.x1 && x2 + 3 <= w.x2 && (y1 <= w.y2 && y1 >= w.y1 || y2 >= w.y1 && y2 <= w.y2))
                     oneMore = true;
 
-            } else if (dir == 2) {
-                if (y2 + 5 >= w.y1 && y2 + 5 <= w.y2 && (x1 <= w.x2 && x1 >= w.x1 || x2 <= w.x2 && x2 >= w.x1))
+            } else {
+                if (y2 + 3 >= w.y1 && y2 + 3 <= w.y2 && (x1 <= w.x2 && x1 >= w.x1 || x2 <= w.x2 && x2 >= w.x1))
                     oneMore = true;
 
             }
@@ -263,6 +310,7 @@ public class GameScreen implements Screen {
                     e.drawe(mainClass.batch);
                 } else {
                     destroyEnemy(e);
+                    SCORE = SCORE+ e.id * 10;
                     i.remove();
                     ENEMIES++;
                 }
@@ -270,10 +318,10 @@ public class GameScreen implements Screen {
         }
     }
 
-    void destroyEnemy(Enemy e) {
-        SCORE += e.id * 100;
-        xStat = (int) e.x+size/2;
-        yStat = (int) e.y+size/2;
+    private void destroyEnemy(Enemy e) {
+
+        xStat = (int) e.x+(float)size/2;
+        yStat = (int) e.y+(float)size/2;
 
         int rand = (int) (Math.random() * 100);
         if (rand >= 10 && rand <= 30) {
@@ -302,9 +350,9 @@ public class GameScreen implements Screen {
         int dy2 = door.y + door.size;
 
         if (px1 > dx1 && px1 < dx2 || px2 > dx1 && px2 < dx2) {
-            if (py1 > dy1 && py1 < dy2 || py2 > dy1 && py2 < dy2) {
-                return true;
-            }
+            //if (py1 > dy1 && py1 < dy2 || py2 > dy1 && py2 < dy2) {
+                return (py1 > dy1 && py1 < dy2 || py2 > dy1 && py2 < dy2) ;
+           // }
         } return false;
 
 
@@ -314,7 +362,7 @@ public class GameScreen implements Screen {
         if(healths){
             mainClass.batch.draw(health, xStat, yStat, (float)size/2, (float)size/2, 0,0,health.getWidth(),health.getHeight(), false,false);
             fpsH++;
-            if(fpsH==5){
+            if(fpsH==10){
                 healths = false;
                 fpsH = 0;
             }
@@ -322,7 +370,7 @@ public class GameScreen implements Screen {
         if(attacks){
             mainClass.batch.draw(attack, xStat, yStat, (float)size/2, (float)size/2, 0,0,attack.getWidth(),attack.getHeight(), false,false);
             fpsA++;
-            if(fpsA==5){
+            if(fpsA==10){
                 attacks = false;
                 fpsA = 0;
             }
@@ -330,10 +378,63 @@ public class GameScreen implements Screen {
         if(defs){
             mainClass.batch.draw(def, xStat, yStat, (float)size/2, (float)size/2, 0,0,def.getWidth(),def.getHeight(), false,false);
             fpsD++;
-            if(fpsD==5){
+            if(fpsD==10){
                 defs = false;
                 fpsD = 0;
             }
         }
     }
+
+    private void generate(){
+        camera.position.x = (float) width / 2;
+        camera.position.y = (float) height / 2;
+        player.x = camera.position.x;
+        player.y = camera.position.y;
+
+        map.generate(8);
+        createDoor();
+    }
+
+    private void drawHealth(){
+        float x = camera.position.x- (float)width/2;
+        float y = camera.position.y + (float) height/2.5f;
+        float xRect = (((float)player.health/10)*(float)width/600);
+        mainClass.batch.draw(white, x,y,(float)width/6, (float)height/25, 1,1,white.getWidth(), white.getHeight(), false,false);
+        mainClass.batch.draw(red, x,y,xRect, (float)height/25, 1,1,red.getWidth(), red.getHeight(), false,false);
+
+
+    }
+
+    private void endOfGame(){
+        camera.position.x = (float) width / 2;
+        camera.position.y = (float) height / 2;
+            mainClass.batch.draw(gameover, camera.position.x-(float)2*width/5,
+                    (camera.position.y), (float)4*width/5,(float)height/3,0,0,
+                    gameover.getWidth(), gameover.getHeight(), false, false);
+
+            String finalScore = "Your score is "+ SCORE;
+            bitmapFont.getData().setScale((float)size/50);
+            layout.setText(bitmapFont, finalScore);
+            bitmapFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+
+            bitmapFont.draw(mainClass.batch,layout, camera.position.x-layout.width/2, camera.position.y-layout.height);
+
+    }
+
+    private void getParamsForButtons(){
+
+        float width = (float)this.width/10;
+
+        exit.setHeight(width);
+        exit.setWidth(width);
+
+        float x = camera.position.x + (float) this.width/2 - width;
+        float y = camera.position.y + (float)this.height/2 - width;
+        exit.setPosition(x, y);
+
+    }
+
+
+
 }

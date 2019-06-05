@@ -4,19 +4,22 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.mygdx.game.MainClass;
+import com.mygdx.game.Tools.MyButton;
+import com.mygdx.game.Tools.MyDatabase;
+
+import static com.mygdx.game.Screen.GameScreen.SCORE;
+
 
 public class MainMenu implements Screen {
     private MainClass mainClass;
-    private Texture background, title, butPlay, butScore;
+    private Texture background, title;
     private int width, height;
-    private ImageButton game, score;
+    private MyButton score, game;
     private Stage stage;
-
 
 
     //params for background image
@@ -30,8 +33,10 @@ public class MainMenu implements Screen {
 
 
 
-   public MainMenu (MainClass mainClass){
-        this.mainClass = mainClass;
+
+   public MainMenu (final MainClass mainClass){
+       this.mainClass = mainClass;
+
 
        background = new Texture("main1.png");
        title = new Texture("logo.png");
@@ -39,14 +44,28 @@ public class MainMenu implements Screen {
        width = Gdx.app.getGraphics().getWidth();
        height = Gdx.app.getGraphics().getHeight();
 
-       butScore = new Texture("stat.png");
-       score = new ImageButton(new SpriteDrawable(new Sprite(butScore)));
-
-       butPlay = new Texture("play.png");
-       game = new ImageButton(new SpriteDrawable(new Sprite(butPlay)));
-
        stage = new Stage(mainClass.screenPort);
-       Gdx.input.setInputProcessor(stage);
+
+       game = new MyButton("butplay.atlas", "butplay.json");
+       game.addListener(new InputListener() {
+           public boolean touchDown (InputEvent event, float x, float y,
+                                     int pointer, int button) {
+                    mainClass.setScreen(new GameScreen(mainClass));
+               return true;
+           }
+
+       });
+
+
+       score = new MyButton("butscore.atlas", "butscore.json");
+       score.addListener(new InputListener() {
+           public boolean touchDown (InputEvent event, float x, float y,
+                                     int pointer, int button) {
+               mainClass.setScreen(new ScoreBoard(mainClass));
+               return true;
+           }
+
+       });
 
 
        getBGPosition();
@@ -55,7 +74,7 @@ public class MainMenu implements Screen {
 
        stage.addActor(game);
        stage.addActor(score);
-
+       Gdx.input.setInputProcessor(stage);
 
 
     }
@@ -74,6 +93,9 @@ public class MainMenu implements Screen {
         mainClass.batch.begin();
         mainClass.batch.draw(background, xBG, yBG, sizeBG, sizeBG);
         mainClass.batch.draw(title, xLogo, yLogo, widthLogo, heightLogo);
+        mainClass.batch.end();
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
 
     }
 
@@ -101,8 +123,6 @@ public class MainMenu implements Screen {
     public void dispose() {
        background.dispose();
        title.dispose();
-       butPlay.dispose();
-       butScore.dispose();
        stage.dispose();
 
     }
@@ -138,20 +158,18 @@ public class MainMenu implements Screen {
     }
 
     private void getParamsForButtons(){
-     //  if(height>width){
 
-            float height = 3*(float)this.height/5;
+            float height = (float)this.width/10;
             float width = (float)this.width/2;
 
-           game.setHeight(height);
-           game.setWidth(width);
+            game.setHeight(height);
+            game.setWidth(width);
 
-           score.setHeight(height);
-           score.setWidth(width);
+            score.setHeight(height);
+            score.setWidth(width);
 
-           game.setPosition((float)this.width/2-width/2, yBG-(float)this.height/20-height);
-           score.setPosition((float)this.width/2-width/2, yBG-2*((float)this.height/20-height));
-       //}
+            game.setPosition((float)this.width/2-width/2, yLogo-height);
+            score.setPosition((float)this.width/2-width/2, yLogo-2.5f*height);
     }
 
 

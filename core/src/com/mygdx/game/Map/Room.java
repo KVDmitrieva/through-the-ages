@@ -2,9 +2,7 @@ package com.mygdx.game.Map;
 
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Sprite.Enemy;
 
@@ -17,7 +15,7 @@ public class Room {
     ArrayList<Hall> room_hall = new ArrayList<Hall>();
     int numberOfHalls;
     boolean hallCreated = false;
-    Texture bitmap, wall;
+    private Texture bitmap, wall;
     public int size;
     public ArrayList<Enemy> enemies = new ArrayList<Enemy>();
 
@@ -131,9 +129,9 @@ public class Room {
         void addEnemies(Texture d1, Texture d2){
             int number = width*height/5;
             for(int i = 0; i<number; i++){
-                float xS = x+size/2+((float)(Math.random()*1000)%width)*size;
+                float xS = x+(float)size/2+((float)(Math.random()*1000)%width)*size;
 
-                float yS = y+size/2+((float)(Math.random()*1000)%height)*size;
+                float yS = y+(float)size/2+((float)(Math.random()*1000)%height)*size;
                 if(xS>x&&xS+1.2f*size<x+width*size&&yS+size<y+height*size&&yS>y){
                     boolean noneIntersect = true;
                     if(enemies.size()>0){
@@ -150,23 +148,15 @@ public class Room {
 
                     if(noneIntersect){
                         if (Math.random()*100<50) {
-                            enemies.add( new Enemy(d1, xS,yS,7, 5, 4, 100, 2, 10, 10, 1,size));
+                            enemies.add( new Enemy(d1, xS,yS,7, 5, 4, 50, 2, 5, 10, 1,size));
                         }
                         else
-                            enemies.add(new Enemy(d2,xS,yS,7, 5, 3, 150, 2, 15, 10, 2,size));
+                            enemies.add(new Enemy(d2,xS,yS,7, 5, 3, 100, 2, 10, 10, 2,size));
 
                     }}}
 
         }
 
-        void moveEnemiesX(int velocity){
-            for(Enemy e: enemies)
-                e.x+=velocity;
-        }
-        void moveEnemiesY(int velocity){
-            for(Enemy e: enemies)
-                e.y+=velocity;
-        }
 
     void drawRoom(SpriteBatch batch) {
         batch.draw(bitmap, x,y,width*size, height*size, 0,0,width*bitmap.getWidth()/24, height*bitmap.getHeight()/24, false, false);

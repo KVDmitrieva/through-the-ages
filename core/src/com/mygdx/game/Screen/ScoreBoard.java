@@ -4,7 +4,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.sql.Database;
 import com.mygdx.game.MainClass;
+import com.mygdx.game.Tools.MyButton;
+import com.mygdx.game.Tools.MyDatabase;
+
+import java.util.ArrayList;
 
 public class ScoreBoard implements Screen {
 
@@ -21,8 +33,15 @@ public class ScoreBoard implements Screen {
     private float xLogo, yLogo;
     private int widthLogo, heightLogo;
 
+    private MyButton back;
+    private Stage stage;
 
-    public ScoreBoard (MainClass mainClass){
+    ScrollPane scrollPane;
+    List<String> list;
+    Skin skin;
+    TextureAtlas atlas;MyDatabase db;
+
+    ScoreBoard (final MainClass mainClass){
         this.mainClass = mainClass;
 
         background = new Texture("main1.png");
@@ -33,6 +52,55 @@ public class ScoreBoard implements Screen {
 
         getBGPosition();
         getParamsForLogo();
+
+        back = new MyButton("skinex.atlas","skinex.json");
+        back.addListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y,
+                                      int pointer, int button) {
+                mainClass.setScreen(new MainMenu(mainClass));
+                return true;
+            }
+
+        });
+        getParamsForButtons();
+
+
+        atlas = new TextureAtlas("font.atlas");
+        skin = new Skin(Gdx.files.internal("font.json"), atlas);
+
+        list = new List<String>(skin);
+
+        String[] strings = new String[20];
+         db = new MyDatabase();
+        ArrayList<String> str = db.selectAll();
+        int k=0;
+        String[] st = new String[str.size()];
+        for (String s:str){
+            st[k] = s;
+            k++;
+        }
+
+        list.setItems(st);
+        scrollPane = new ScrollPane(list);
+        scrollPane.scrollTo(0,0,width, height);
+
+        scrollPane.setWidth((float)width/2);
+        //scrollPane.setHeight(height);
+        //scrollPane.setHeight((float)height/2);
+        //scrollPane.setBounds(0,0,(float)width/2,(float)height/2);
+        scrollPane.scaleBy(1);
+        scrollPane.setTransform(true);
+        scrollPane.setSmoothScrolling(false);
+        scrollPane.setPosition(width/100,
+                (float)height/2);
+        scrollPane.setScrollPercentY(100);
+
+
+
+        stage = new Stage(mainClass.screenPort);
+        stage.addActor(back);
+        stage.addActor(scrollPane);
+        Gdx.input.setInputProcessor(stage);
 
     }
 
@@ -50,15 +118,12 @@ public class ScoreBoard implements Screen {
         mainClass.batch.draw(background, xBG, yBG, sizeBG, sizeBG);
         mainClass.batch.draw(title, xLogo, yLogo, widthLogo, heightLogo);
         mainClass.batch.end();
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
     }
 
     @Override
     public void resize(int width, int height) {
-        // this.width = Gdx.app.getGraphics().getWidth();
-        // this.height = Gdx.app.getGraphics().getHeight();
-        getBGPosition();
-        getParamsForLogo();
-
 
     }
 
@@ -113,6 +178,14 @@ public class ScoreBoard implements Screen {
 
     }
 
+    private void getParamsForButtons(){
 
+        float height = (float)this.width/10;
+        float width = (float)this.width/2;
 
+        back.setHeight(height);
+        back.setWidth(width);
+
+        back.setPosition((float)this.width/2-width/2, height);
+    }
 }

@@ -2,12 +2,12 @@ package com.mygdx.game.Map;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 
 class Hall {
-    int x, y, width, height, id, size;
-    Texture bitmap, wall;
+    int x, y, width, height, id;
+    private int size;
+    private Texture bitmap, wall;
 
     Hall(int x, int y, int width, int height, int size, Texture image, Texture wall){
         this.x = x;

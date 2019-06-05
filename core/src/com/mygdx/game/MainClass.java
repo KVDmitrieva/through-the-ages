@@ -4,9 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.game.Screen.GameScreen;
 import com.mygdx.game.Screen.MainMenu;
-import com.mygdx.game.Screen.ScoreBoard;
 
 public class MainClass extends Game {
 	public SpriteBatch batch;
@@ -17,7 +15,7 @@ public class MainClass extends Game {
 	public void create () {
 		batch = new SpriteBatch();
 		screenPort = new ScreenViewport();
-		this.setScreen(new GameScreen(this));
+		this.setScreen(new MainMenu(this));
 
 	}
 

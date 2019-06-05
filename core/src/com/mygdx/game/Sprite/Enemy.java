@@ -3,6 +3,8 @@ package com.mygdx.game.Sprite;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import static com.mygdx.game.Screen.GameScreen.LEVEL;
+
 public class Enemy extends Sprites{
     private Texture bitmap;
 
@@ -10,9 +12,8 @@ public class Enemy extends Sprites{
     public int currentFrame;
     private long frameTicker;
     private int framePeriod;
-
-     int spriteWidth;
-    int spriteHeight;
+    private int spriteWidth;
+    private int spriteHeight;
 
     public float spriteW, spriteH;
 
@@ -20,29 +21,26 @@ public class Enemy extends Sprites{
 
     private int lines;
     public int health, attack;
-    int def,crit, size;
+    private int def,crit;
     public int id;
-    int xTexture, yTexture;
+    private int xTexture, yTexture;
 
     public Enemy(Texture bitmap, float x, float y, int fps, int frameCount,int lines,int health, int def, int attack, int crit, int id, int size){
         super(bitmap, x, y,  fps, frameCount, lines, size);
         this.bitmap= bitmap;
-        //this.x= x;
-        // this.y= y;
         this.lines = lines;
         currentFrame=0;
         frameNr= frameCount;
         spriteWidth= bitmap.getWidth()/ frameCount;
         spriteHeight= bitmap.getHeight()/lines;
         framePeriod=1000/ fps;
-        frameTicker= 0l;
+        frameTicker= 1;
 
         spriteW = (1.2f*size);
         spriteH = (size);
-        this.size = size;
-        this.health = health;
+        this.health = health + LEVEL*5;
         this.def = def;
-        this.attack = attack;
+        this.attack = attack + LEVEL*2;
         this.crit = crit;
         this.id = id;
     }

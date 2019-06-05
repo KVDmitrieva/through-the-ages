@@ -1,0 +1,13 @@
+
+skinex.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+back2
+  rotate: false
+  xy: 1, 388
+  size: 481, 92
+  orig: 481, 92
+  offset: 0, 0
+  index: -1
