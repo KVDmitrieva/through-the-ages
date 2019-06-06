@@ -1,14 +1,17 @@
 package com.mygdx.game.Tools;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 
 public class Gesture implements GestureDetector.GestureListener {
     JoyStick joyStick;
+    Camera camera;
 
-    public Gesture(JoyStick joyStick){
+    public Gesture(JoyStick joyStick, Camera camera){
         this.joyStick = joyStick;
+        this.camera = camera;
     }
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
@@ -19,7 +22,10 @@ public class Gesture implements GestureDetector.GestureListener {
     @Override
     public boolean tap(float x, float y, int count, int button) {
         joyStick.setX(x-joyStick.getWidth()/2);
-        joyStick.setY(2*Gdx.app.getGraphics().getWidth()-y-joyStick.getHeight()*1.5f);
+        if(camera.position.y-y/2<0) joyStick.setY(0); else
+            if(camera.position.y-y/2>Gdx.app.getGraphics().getHeight())
+                joyStick.setY(Gdx.app.getGraphics().getHeight()-joyStick.getHeight());else
+        joyStick.setY(camera.position.y-y/2+joyStick.getHeight()/2);
         return true;
     }
 

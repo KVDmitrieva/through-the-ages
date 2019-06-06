@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -63,7 +62,7 @@ public class GameScreen implements Screen{
     //params button no
     private float xN, yN, wN, hN;
 
-    Sprite quest;
+    private Sprite quest;
 
 
 
@@ -87,7 +86,7 @@ public class GameScreen implements Screen{
         velocity = width / 100;
         joyStick = new JoyStick(30, 30);
         layout = new GlyphLayout(bitmapFont, "hello");
-        Gesture gesture = new Gesture(joyStick);
+        Gesture gesture = new Gesture(joyStick, camera);
 
         floor = new Texture("floor1.png");
         wall = new Texture("wall.png");
@@ -306,9 +305,9 @@ public class GameScreen implements Screen{
                 Enemy e = i.next();
                 if (((player.x + player.spriteW <= e.x + e.spriteW&&player.x + player.spriteW >= e.x)||
                         (player.x  <= e.x + e.spriteW&&player.x>= e.x))
-                        && (((player.y + 3*player.spriteH / 4 <= e.y + e.spriteH)
+                        && ((((player.y + 3*player.spriteH / 4 <= e.y + e.spriteH)
                         && player.y + 3*player.spriteH / 4 >= e.y)||(player.y  <= e.y + e.spriteH)
-                        && player.y >= e.y)) {
+                        && player.y >= e.y) || player.y<=e.y&&e.y<=player.y+player.spriteH) ){
                     attacker = e;
                     return true;
                 }
