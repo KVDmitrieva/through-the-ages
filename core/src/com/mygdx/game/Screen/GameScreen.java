@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -36,7 +38,7 @@ public class GameScreen implements Screen{
 
     private MainClass mainClass;
     private Texture floor, d1, d2, wall, character, attack, health,
-            def, doors, white, red, gameover;
+            def, doors, white, red, gameover, question;
     private int width, height, size, velocity;
     private GlyphLayout layout;
     private Map map;
@@ -48,9 +50,22 @@ public class GameScreen implements Screen{
     private Door door;
     private BitmapFont bitmapFont;
     private float xStat, yStat;
-    private boolean healths = false, attacks = false, defs = false;
+    private boolean healths = false, attacks = false, defs = false, noCheck = false;
     private int fpsH = 0, fpsA = 0, fpsD = 0;
-    private MyButton exit;
+    private MyButton exit, yes, no;
+
+    //params for alert
+    private float xQ, yQ, wQ, hQ;
+
+    //params button yes
+    private float xY, yY, wY, hY;
+
+    //params button no
+    private float xN, yN, wN, hN;
+
+    Sprite quest;
+
+
 
      GameScreen(final MainClass mainClass) {
         this.mainClass = mainClass;
@@ -86,6 +101,9 @@ public class GameScreen implements Screen{
         red = new Texture("red.png");
         white = new Texture("white.png");
         gameover = new Texture("gameover.png");
+        question = new Texture("question.png");
+
+
 
         map = new Map(width, height, floor, size, d1, d2, wall);
         map.generate(8);
@@ -105,9 +123,50 @@ public class GameScreen implements Screen{
             }
 
         });
+
+         yes = new MyButton("yes.atlas", "yes.json");
+         yes.addListener(new InputListener() {
+             public boolean touchDown (InputEvent event, float x, float y,
+                                       int pointer, int button) {
+                 no.setVisible(false);
+                 yes.setVisible(false);
+                 quest.setAlpha(0);
+                 generate(); LEVEL++; SCORE+=50;
+                 return true;
+             }
+
+         });
+
+
+         no = new MyButton("no.atlas", "no.json");
+         no.addListener(new InputListener() {
+             public boolean touchDown (InputEvent event, float x, float y,
+                                       int pointer, int button) {
+                    no.setVisible(false);
+                    yes.setVisible(false);
+                    quest.setAlpha(0);
+                    noCheck = true;
+                 return true;
+             }
+
+         });
+
+         no.setVisible(false);
+         yes.setVisible(false);
+
+
+            quest = new Sprite(question);
+            paramAlert();
+            quest.setBounds(xQ, yQ, wQ, hQ);
+            quest.setAlpha(0);
+
+
         stage = new Stage(mainClass.screenPort, mainClass.batch);
         stage.addActor(joyStick);
         stage.addActor(exit);
+
+        stage.addActor(no);
+        stage.addActor(yes);
         Gdx.input.setInputProcessor(new GestureDetector(gesture));
 
         InputMultiplexer multiplexer = new InputMultiplexer();
@@ -128,19 +187,31 @@ public class GameScreen implements Screen{
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (intersectDoor()) {generate(); LEVEL++; SCORE+=50;}
+
         moveCamera();
         camera.update();
         mainClass.batch.setProjectionMatrix(camera.combined);
         mainClass.batch.begin();
+
         if(player.health>0){
         map.drawMap(mainClass.batch);
         door.drawObject(mainClass.batch);
         onDrawEnemy();
         drawStat();
         drawHealth();
-        player.draw(mainClass.batch);}else
+        player.draw(mainClass.batch);
+        quest.draw(mainClass.batch);
+
+            if (intersectDoor() ) {
+                if(!noCheck) {
+                  drawAlert();
+                }
+            } else noCheck = false;
+
+        }else
         endOfGame();
+
+
         mainClass.batch.end();
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
@@ -396,7 +467,7 @@ public class GameScreen implements Screen{
     }
 
     private void drawHealth(){
-        float x = camera.position.x- (float)width/2;
+        float x = camera.position.x- (float)width/2 + 5;
         float y = camera.position.y + (float) height/2.5f;
         float xRect = (((float)player.health/10)*(float)width/600);
         mainClass.batch.draw(white, x,y,(float)width/6, (float)height/25, 1,1,white.getWidth(), white.getHeight(), false,false);
@@ -435,6 +506,41 @@ public class GameScreen implements Screen{
 
     }
 
+    private void paramAlert(){
+
+         wQ = (float)3*width/4;
+         hQ =  wQ/4;
+
+         xQ = camera.position.x-wQ/2;
+         yQ = camera.position.y-hQ/2;
+
+         wY = wQ/4;
+         hY = wY/4;
+
+         wN = wY;
+         hN = hY;
+
+         xY = xQ + wQ/2 -1.1f*wY;
+         yY = yQ+wY/5;
+
+         xN = xQ + wQ/2 +0.1f*wN;
+         yN = yY;
+
+         yes.setSize(wY, hY);
+         yes.setPosition(xY, yY);
+
+         no.setSize(wN, hN);
+         no.setPosition(xN, yN);
+
+
+
+    }
+
+    private void drawAlert(){
+        no.setVisible(true);
+        yes.setVisible(true);
+        quest.setAlpha(1);
+    }
 
 
 }

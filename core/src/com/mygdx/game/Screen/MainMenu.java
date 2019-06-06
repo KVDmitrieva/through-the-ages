@@ -9,9 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.game.MainClass;
 import com.mygdx.game.Tools.MyButton;
-import com.mygdx.game.Tools.MyDatabase;
 
-import static com.mygdx.game.Screen.GameScreen.SCORE;
 
 
 public class MainMenu implements Screen {
