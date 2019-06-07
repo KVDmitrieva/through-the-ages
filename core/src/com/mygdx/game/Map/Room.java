@@ -10,18 +10,21 @@ import java.util.ArrayList;
 
 
 public class Room {
-    public int x, y, width, height;
-    boolean[] idOfHalls = new boolean[4];
-    ArrayList<Hall> room_hall = new ArrayList<Hall>();
-    int numberOfHalls;
-    boolean hallCreated = false;
-    private Texture bitmap, wall;
-    public int size;
-    public ArrayList<Enemy> enemies = new ArrayList<Enemy>();
 
-    //walls cor
+    public int x, y, width, height; //coordinates and size of room
+    boolean[] idOfHalls = new boolean[4]; //checks where the hall can be created
+    ArrayList<Hall> room_hall = new ArrayList<Hall>(); //list of room's halls
+    int numberOfHalls; //number of room's halls
+    boolean hallCreated = false; //checks if the halls were created
+    private Texture bitmap, wall; //texture of floor and wall
+    public int size; //basic size to scale map
+    public ArrayList<Enemy> enemies = new ArrayList<Enemy>(); //list of room's enemy
+
+    //walls coordinates without hall
     private int xl0, yl0, xr0, yr0, xl1, yl1, xr1, yr1,
             xl2, yl2, xr2, yr2, xl3, yl3, xr3, yr3;
+
+    //walls coordinates with hall
     private int hxl0 = 0, hyl0 = 0, hxr0 = 0, hyr0 = 0, hxl1 = 0, hyl1 = 0, hxr1 = 0, hyr1 = 0,
             hxl2 = 0, hyl2 = 0, hxr2 = 0, hyr2 = 0, hxl3 = 0, hyl3 = 0, hxr3 = 0, hyr3 = 0;
 
@@ -40,10 +43,11 @@ public class Room {
     }
 
     int numberOfHalls() {
-        return (int) (Math.random() * 100) % 3;
+        return (int) (Math.random() * 100) % 3; //number of halls for this room
     }
 
     boolean intersect(Room r) {
+        //check if new room intersects with others
         return ((((r.x + r.width * size >= x && r.x + r.width * size <= x + width * size) || (r.x <= x + width * size && r.x >= x)) &&
                 ((r.y <= y + height * size && r.y >= y) || (r.y + r.height * size <= y + height * size && r.y + r.height * size >= y))) ||
                 (x + width * size >= r.x && x + width * size <= r.x + r.width * size || x <= r.x + r.width * size && x >= r.x) &&
@@ -51,6 +55,7 @@ public class Room {
     }
 
     void createWalls(Room r) {
+        //set params for walls
         xl0 = r.x - size / 4;
         xr0 = r.x + r.width * size + size / 4;
         yl0 = r.y - size / 4;
@@ -73,6 +78,7 @@ public class Room {
     }
 
     void intersectionHall(Hall h, int id) {
+        //if there is a hall then sets new walls' coordinates
         switch (id) {
             case 0:
                 hxl0 = h.x;
@@ -103,6 +109,7 @@ public class Room {
     }
 
     void addWall(Array<Wall> walls) {
+        //create new walls
         if (idOfHalls[0]) walls.add(new Wall(xl0, yl0, xr0, yr0,wall));
         else {
             walls.add(new Wall(xl0, yl0, hxl0, hyr0,wall));
@@ -127,15 +134,15 @@ public class Room {
     }
 
         void addEnemies(Texture d1, Texture d2){
-            int number = width*height/5;
+            int number = width*height/5; //number of enemies in room
             for(int i = 0; i<number; i++){
                 float xS = x+(float)size/2+((float)(Math.random()*1000)%width)*size;
-
                 float yS = y+(float)size/2+((float)(Math.random()*1000)%height)*size;
+
                 if(xS>x&&xS+1.2f*size<x+width*size&&yS+size<y+height*size&&yS>y){
-                    boolean noneIntersect = true;
+                    boolean noneIntersect = true; //check intersection with borders of the room
                     if(enemies.size()>0){
-                        for(Enemy enemy:enemies){
+                        for(Enemy enemy:enemies){ //check intersection with other enemies
                             if(enemy.x>=xS&&enemy.x<=xS+enemy.spriteW||
                                     enemy.x+enemy.spriteW>=xS&&enemy.x+enemy.spriteW<=xS+enemy.spriteW){
                                 if(enemy.y>=yS&&enemy.y<=yS+enemy.spriteH||
@@ -161,6 +168,10 @@ public class Room {
     void drawRoom(SpriteBatch batch) {
         batch.draw(bitmap, x,y,width*size, height*size, 0,0,width*bitmap.getWidth()/24, height*bitmap.getHeight()/24, false, false);
 
+    }
+
+    void addBoss(Texture boss, float x, float y){
+        enemies.add(new Enemy(boss,x+7*size, y+size, 7, 5,4, 200, 2, 20, 10, 7, size));
     }
 
 }

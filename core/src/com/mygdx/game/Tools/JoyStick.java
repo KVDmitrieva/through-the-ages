@@ -8,32 +8,28 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 public class JoyStick extends Touchpad {
 
-    private static Skin touchpadSkin;
-    private static Touchpad.TouchpadStyle touchpadStyle;
-    private static Drawable touchBackground;
-    private static Drawable touchStick;
     private static int size = Gdx.app.getGraphics().getWidth()/10;
 
-    public JoyStick(float x, float y) {
+    public JoyStick() {
 
         super(20, getTouchpadStyle());
 
     }
 
 
-    static Touchpad.TouchpadStyle getTouchpadStyle() {
+    private static Touchpad.TouchpadStyle getTouchpadStyle() {
 
-        touchpadSkin = new Skin();
+        Skin touchpadSkin = new Skin();
         touchpadSkin.add("touchBackground", new Texture("backgrounjoy.png"));
 
         touchpadSkin.add("touchKnob", new Texture("joystick.png"));
 
-        touchpadStyle = new Touchpad.TouchpadStyle();
+        Touchpad.TouchpadStyle touchpadStyle = new Touchpad.TouchpadStyle();
 
-        touchBackground = touchpadSkin.getDrawable("touchBackground");
+        Drawable touchBackground = touchpadSkin.getDrawable("touchBackground");
         touchBackground.setMinHeight(size*2);
         touchBackground.setMinWidth(size*2);
-        touchStick = touchpadSkin.getDrawable("touchKnob");
+        Drawable touchStick = touchpadSkin.getDrawable("touchKnob");
         touchStick.setMinWidth((float)size);
         touchStick.setMinHeight((float)size);
 

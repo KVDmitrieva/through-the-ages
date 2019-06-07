@@ -4,23 +4,24 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 class Sprites {
-    private Texture texture;
-    private int frameNr;
-    public int currentFrame;
-    private long frameTicker;
-    private int framePeriod;
 
-    private int spriteWidth;
-    private int spriteHeight;
+    private Texture texture; //image
+    private int frameNr; //frames in line
+    public int currentFrame; //current frame
+    private long frameTicker; //time to update last frame
+    private int framePeriod; //time for changing frames
 
-    public float spriteW, spriteH;
+    private int spriteWidth; //width of frame in texture
+    private int spriteHeight; //height of frame in texture
 
-    public float x,y;
+    public float spriteW, spriteH; //real size in game
 
-    private int xTexture, yTexture;
+    public float x,y; //coordinates in game
 
+    private int xTexture, yTexture; //coordinates in texture
 
-    public int mod;
+    public int mod; //current line with animation
+    private int count = 0 , lines;
 
 
     Sprites(Texture texture, float x, float y, int fps, int frameCount, int lines, int size){
@@ -37,6 +38,7 @@ class Sprites {
         framePeriod=1000/fps;
         frameTicker= 1;
         mod = 0;
+        this.lines = lines;
 
     }
 
@@ -46,18 +48,19 @@ class Sprites {
             frameTicker = gameTime;
             currentFrame++;
             if(currentFrame>= frameNr){
-                currentFrame=0;
+                currentFrame=0; count++;
+                if(count==6&&lines==4){
+                    mod =3; count = 0;
+                } else if(count ==1 && mod ==3) mod = 0;
             }
         }
         xTexture = currentFrame* spriteWidth;
         yTexture =spriteHeight*(mod);
-
     }
 
     public void draw(SpriteBatch batch){
 
         batch.draw(texture, x, y, spriteW, spriteH, xTexture,yTexture,spriteWidth, spriteHeight, false, false);
-
         update(System.currentTimeMillis());
     }
 }

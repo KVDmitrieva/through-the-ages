@@ -48,7 +48,7 @@ public class MainMenu implements Screen {
        game.addListener(new InputListener() {
            public boolean touchDown (InputEvent event, float x, float y,
                                      int pointer, int button) {
-                    mainClass.setScreen(new GameScreen(mainClass));
+                    mainClass.setScreen(new GameScreen(mainClass)); //move to game
                return true;
            }
 
@@ -59,7 +59,7 @@ public class MainMenu implements Screen {
        score.addListener(new InputListener() {
            public boolean touchDown (InputEvent event, float x, float y,
                                      int pointer, int button) {
-               mainClass.setScreen(new ScoreBoard(mainClass));
+               mainClass.setScreen(new ScoreBoard(mainClass)); //move to statistic
                return true;
            }
 
@@ -126,6 +126,7 @@ public class MainMenu implements Screen {
     }
 
     private void getBGPosition(){
+       //set position and size for background
         if (width>height) {
             sizeBG = width;
             xBG = 0;
@@ -138,6 +139,7 @@ public class MainMenu implements Screen {
     }
 
     private void getParamsForLogo(){
+        //set position and size for title
        if(width>height){
            widthLogo = 4*(width/5);
            heightLogo = height/4;
@@ -156,7 +158,7 @@ public class MainMenu implements Screen {
     }
 
     private void getParamsForButtons(){
-
+        //set position and size for button
             float height = (float)this.width/10;
             float width = (float)this.width/2;
 

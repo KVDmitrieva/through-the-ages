@@ -6,16 +6,15 @@ import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static com.mygdx.game.Screen.GameScreen.LEVEL;
+
 public class Map {
     private int width, height;
-   // private Paint p =new Paint();
-    private int countHalls;
-    public ArrayList<Room> map_room = new ArrayList<Room>();
-    public Array<Wall> map_walls = new Array<Wall>();
-    private int size;
-
-
-    private Texture floor, d1,d2, wall;
+    private int countHalls; //max number of halls
+    public ArrayList<Room> map_room = new ArrayList<Room>(); //list of all rooms
+    public Array<Wall> map_walls = new Array<Wall>(); //list of all walls
+    private int size; //basic size to scale map
+    private Texture floor, d1,d2, wall; //textures of floor, monsters and wall
 
 
     public Map(int width, int height, Texture floor, int size, Texture d1,Texture d2, Texture wall){
@@ -28,13 +27,15 @@ public class Map {
         this.wall = wall;
     }
 
+    //function creates new room  that connects with hall
     private void create(Hall hall) {
         hall.roomCreated = true;
-        int w = hall.width + (int) (Math.random() * 100) % 5+1;
+        int w = hall.width + (int) (Math.random() * 100) % 5+1; //width of room
         if (w < 3) w += 1;
-        int h = hall.height + (int) (Math.random() * 100) % 5+1;
+        int h = hall.height + (int) (Math.random() * 100) % 5+1; //height of room
         if (h < 3) h += 1;
-        int x = 0, y = 0;
+        int x = 0, y = 0; //coordinates of room
+        //check where the hall connects to the room and then set coordinates
         switch (hall.id) {
             case 0:
                 x = hall.x - size;
@@ -56,12 +57,13 @@ public class Map {
 
         }
         Room room = new Room(x, y, w, h, size,floor, wall);
-        boolean intersection = true;
+        boolean intersection = true; //check if new room intersects with others
         for (Room r : map_room) {
             if (r.intersect(room)) intersection = false;
         }
-        if (intersection) {
-            room.createWalls(room);
+        if (intersection) { //if new room doesn't intersect others
+            room.createWalls(room);//create walls for room
+            //check where the hall connects to the room
             int idHall = 0;
             switch (hall.id) {
                 case 0:
@@ -81,19 +83,20 @@ public class Map {
                     idHall = 1;
                     break;
             }
-            room.intersectionHall(hall, idHall);
-            map_room.add(room);
-            room.addEnemies(d1,d2);
-            addHall(room);
-        } else hall.moreWalls = true;
+            room.intersectionHall(hall, idHall); //updates room's coordinates
+            map_room.add(room); //add new room to list
+            room.addEnemies(d1,d2); //add enemies to the room
+            addHall(room); //add new halls to the room
+        } else hall.deleteHall = true; //if new room intersects others hall will be deleted
     }
 
+    //creates first room where player will start
     private Room first(){
         int w = 3 + (int)(Math.random()*100)%5;
         int h = 3 + (int)(Math.random()*100)%5;
         return  new Room((width/2-(w/2)*size), (height/2)-(h/2)*size,w,h,size,floor,wall);
     }
-
+    //function creates new hall for room
     private Hall createHall(Room r, int id) {
         Hall hall;
         int w=2, h=2;
@@ -131,15 +134,20 @@ public class Map {
         countHalls = roomCount-1;
         map_room.clear();
         map_walls.clear();
+        //special room with boss
+        if(LEVEL%5==0){
+            bossRoom();
+        } else{
+        //start generation
         Room rfirst = first();
-       // rfirst.addEnemies(d1,d2);
         rfirst.createWalls(rfirst);
         map_room.add(rfirst);
         addHall(rfirst);
-        createWalls();
+        createWalls();}
     }
 
     private void createWalls(){
+        //add walls for all rooms and halls
         for(Room r: map_room){
             r.addWall(map_walls);
             for(Hall h:r.room_hall){
@@ -151,30 +159,30 @@ public class Map {
     private void addHall(Room r){
         if(!r.hallCreated) {
             r.hallCreated = true;
-            if(map_room.size()==1) r.numberOfHalls = 4; else
-                r.numberOfHalls = r.numberOfHalls();
-            if(r.numberOfHalls==6) r.numberOfHalls++;
-            countHalls -= r.numberOfHalls;
+            if(map_room.size()==1) r.numberOfHalls = 4; else //for the first room add 4 halls
+                r.numberOfHalls = r.numberOfHalls(); //number of halls in other rooms
+            if(r.numberOfHalls==6) r.numberOfHalls++; //one more hall for 6th room
+            countHalls -= r.numberOfHalls; //check the ability to create new halls
             if (countHalls < 0) r.numberOfHalls += countHalls;
-            boolean freeWall = false;
+            boolean freeWall = false; //check free walls (without halls) in the room
             for(int i=0; i<4; i++){
                 if(r.idOfHalls[i]) freeWall=true;
             }
             int index;
-            if (r.numberOfHalls > 0&&freeWall) {
+            if (r.numberOfHalls > 0 && freeWall) {
                 for (int j = 0; j < r.numberOfHalls; j++) {
                     index = Math.abs(((int)(Math.random() *Math.random()* 10000)) % 4 );
-                    if (!r.idOfHalls[index])
+                    if (!r.idOfHalls[index]) //check wall - free or not
                         for(int i=0; i<4; i++){
-                            if(r.idOfHalls[i])index = i;
+                            if(r.idOfHalls[i])index = i; //set id for hall
                         }
                     r.idOfHalls[index] = false;
 
-                    Hall hall = createHall(r, index);
+                    Hall hall = createHall(r, index); //create hall to this room
 
-                    r.intersectionHall(hall, index);
+                    r.intersectionHall(hall, index); //update room's hall
                     hall.id = index;
-                    hall.createWalls(hall);
+                    hall.createWalls(hall); //create walls for hall
                     r.room_hall.add(hall);
 
                 }
@@ -184,24 +192,13 @@ public class Map {
                     Hall h = i.next();
                     if(!h.roomCreated)
                         create(h);
-                    if(h.moreWalls){
+                    if(h.deleteHall){
                         r.idOfHalls[h.id]=true;
                         i.remove();
-                        //r.room_hall.remove(h);
-
                     }
                 }
 
 
-                /*for (Hall h : r.room_hall) {
-                    if(!h.roomCreated)
-                        create(h);
-                    if(h.moreWalls){
-                        r.idOfHalls[h.id]=true;
-                        r.room_hall.remove(h);
-
-                    }
-                } */
             }
         }
     }
@@ -211,6 +208,7 @@ public class Map {
         for(Wall w:map_walls){
             w.drawWall(batch);
         }
+
         for(Room r:map_room){
             r.drawRoom(batch);
             for(Hall hall:r.room_hall){
@@ -220,6 +218,16 @@ public class Map {
 
 
     }
+
+    private void bossRoom(){
+        //special room with boss
+        Room room = new Room(width/2-size, height/2-size, 10, 5, size, floor, wall);
+        room.addBoss(new Texture("boss.png"), (float)width/2-size, (float)height/2-size);
+        room.createWalls(room);
+        room.addWall(map_walls);
+        map_room.add(room);
+    }
+
 
 
 

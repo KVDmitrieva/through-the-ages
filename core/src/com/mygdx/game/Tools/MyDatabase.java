@@ -19,16 +19,15 @@ public class MyDatabase {
     private Database dbHandler;
 
 
-    public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "statisticDB";
-    public static final String TABLE_STATISTIC = "statistic";
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "statisticDB";
+    private static final String TABLE_STATISTIC = "statistic";
 
-    public static final String KEY_ID = "_id";
-    public static final String KEY_SCORE = "score";
-    public static final String KEY_LEVEL = "level";
-    public static final String KEY_ENEMIES = "enemy";
+    private static final String KEY_ID = "_id";
+    private static final String KEY_SCORE = "score";
+    private static final String KEY_LEVEL = "level";
+    private static final String KEY_ENEMIES = "enemy";
 
-    private static final int NUM_COLUMN_ID = 0;
     private static final int NUM_COLUMN_SCORE = 1;
     private static final int NUM_COLUMN_LEVEL = 2;
     private static final int NUM_COLUMN_ENEMIES= 3;
@@ -66,13 +65,14 @@ public class MyDatabase {
         } catch (SQLiteGdxException e) {
             e.printStackTrace();
         }
-        while (mCursor.next()) {
-            long id = mCursor.getLong(NUM_COLUMN_ID);
-            int finalScore= mCursor.getInt(NUM_COLUMN_SCORE);
-            int level = mCursor.getInt(NUM_COLUMN_LEVEL);
-            int enemy=mCursor.getInt(NUM_COLUMN_ENEMIES);
-            String totalScore = "Score "+finalScore+"   Level "+level+"   Enemies "+enemy;
-            arr.add(totalScore);
+        if (mCursor != null) {
+            while (mCursor.next()) {
+                int finalScore= mCursor.getInt(NUM_COLUMN_SCORE);
+                int level = mCursor.getInt(NUM_COLUMN_LEVEL);
+                int enemy=mCursor.getInt(NUM_COLUMN_ENEMIES);
+                String totalScore = "Score "+finalScore+"   Level "+level+"   Enemies "+enemy;
+                arr.add(totalScore);
+            }
         }
 
         try {

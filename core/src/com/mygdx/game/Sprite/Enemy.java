@@ -35,9 +35,13 @@ public class Enemy extends Sprites{
         spriteHeight= bitmap.getHeight()/lines;
         framePeriod=1000/ fps;
         frameTicker= 1;
-
+        if(id == 7){
+            spriteW = (3.2f*size);
+            spriteH = (3*size);
+        }else{
         spriteW = (1.2f*size);
         spriteH = (size);
+        }
         this.health = health + LEVEL*5;
         this.def = def;
         this.attack = attack + LEVEL*2;
@@ -45,7 +49,9 @@ public class Enemy extends Sprites{
         this.id = id;
     }
     private int count = 0;
-    private void updates(long gameTime){
+
+
+    private void update(long gameTime){
         if(gameTime> frameTicker+ framePeriod){
             frameTicker = gameTime;
             currentFrame++;
@@ -62,7 +68,7 @@ public class Enemy extends Sprites{
 
     public void drawe(SpriteBatch batch){
         batch.draw(bitmap, x, y, spriteW, spriteH, xTexture,yTexture,spriteWidth, spriteHeight, false, false);
-        updates(System.currentTimeMillis());
+        update(System.currentTimeMillis());
 
     }
 

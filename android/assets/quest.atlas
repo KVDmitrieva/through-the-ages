@@ -1,0 +1,13 @@
+
+quest.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+question
+  rotate: false
+  xy: 1, 519
+  size: 641, 121
+  orig: 641, 121
+  offset: 0, 0
+  index: -1

@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.mygdx.game.MainClass;
 import com.mygdx.game.Tools.MyButton;
 import com.mygdx.game.Tools.MyDatabase;
@@ -36,14 +35,6 @@ public class ScoreBoard implements Screen {
     private MyButton back;
     private Stage stage;
 
-    private ScrollPane scrollPane;
-    private List<String> list;
-    private Skin skin;
-    private TextureAtlas atlas;
-    private MyDatabase db;
-
-
-
 
     ScoreBoard (final MainClass mainClass){
         this.mainClass = mainClass;
@@ -61,6 +52,7 @@ public class ScoreBoard implements Screen {
         back.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y,
                                       int pointer, int button) {
+                //go to main menu
                 mainClass.setScreen(new MainMenu(mainClass));
                 return true;
             }
@@ -68,16 +60,14 @@ public class ScoreBoard implements Screen {
         });
         getParamsForButtons();
 
+        TextureAtlas atlas = new TextureAtlas("font.atlas");
+        Skin skin = new Skin(Gdx.files.internal("font.json"), atlas);
 
-
-
-        atlas = new TextureAtlas("font.atlas");
-        skin = new Skin(Gdx.files.internal("font.json"), atlas);
-
-        list = new List<String>(skin);
+        //list with statistic of all games
+        List list = new List<String>(skin);
         list.setHeight(height);
 
-         db = new MyDatabase();
+        MyDatabase db = new MyDatabase();
         ArrayList<String> str = db.selectAll();
         int k=0;
         String[] st = new String[str.size()];
@@ -87,18 +77,12 @@ public class ScoreBoard implements Screen {
         }
 
         list.setItems(st);
-        scrollPane = new ScrollPane(list);
 
-
+        ScrollPane scrollPane = new ScrollPane(list);
         scrollPane.setWidth((float)width/2);
-        scrollPane.setHeight(height/7);
-        //scrollPane.setHeight((float)height/2);
-        //scrollPane.setBounds(0,0,(float)width/2,(float)height/2);
+        scrollPane.setHeight((float)height/7);
         scrollPane.scaleBy(1.5f);
-        scrollPane.setTransform(true);
-        scrollPane.setSmoothScrolling(false);
-        scrollPane.setPosition(scrollPane.getWidth()/4,
-                (float)height/2-scrollPane.getHeight()/2);
+        scrollPane.setPosition(scrollPane.getWidth()/4, (float)height/2-scrollPane.getHeight()/2);
         scrollPane.setScrollPercentY(100);
 
 
@@ -155,6 +139,7 @@ public class ScoreBoard implements Screen {
     }
 
     private void getBGPosition(){
+        //set position and size for background
         if (width>height) {
             sizeBG = width;
             xBG = 0;
@@ -167,6 +152,7 @@ public class ScoreBoard implements Screen {
     }
 
     private void getParamsForLogo(){
+        //set position and size for title
         if(width>height){
             widthLogo = 4*(width/5);
             heightLogo = height/4;
@@ -185,7 +171,7 @@ public class ScoreBoard implements Screen {
     }
 
     private void getParamsForButtons(){
-
+        //set position and size for button
         float height = (float)this.width/10;
         float width = (float)this.width/2;
 

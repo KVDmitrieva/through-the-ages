@@ -5,9 +5,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 class Hall {
-    int x, y, width, height, id;
-    private int size;
-    private Texture bitmap, wall;
+    int x, y, width, height, //coordinates, size of hall
+            id;// id - where the hall is located relativity to room (on top, bottom, left or right side of the room)
+
+    private int size; //basic size which helps to scale the map
+    private Texture bitmap, wall; //texture of floor and walls
+
+    boolean roomCreated = false; //checks if the second room of the hall was created
+    boolean deleteHall = false; //if the second room wasn't successfully created the room and this hall wll be removed
+
+    //coordinates for all walls
+    private int xl0, yl0, xr0, yr0, xl1, yl1, xr1, yr1,
+            xl2, yl2, xr2, yr2, xl3, yl3, xr3, yr3;
+
 
     Hall(int x, int y, int width, int height, int size, Texture image, Texture wall){
         this.x = x;
@@ -19,13 +29,8 @@ class Hall {
         this.wall = wall;
     }
 
-
-    boolean roomCreated = false;
-    boolean moreWalls = false;
-
-    private int xl0, yl0, xr0, yr0, xl1, yl1, xr1, yr1,
-            xl2, yl2, xr2, yr2, xl3, yl3, xr3, yr3;
     void createWalls(Hall r){
+        //set coordinates for walls
         xl0 = r.x;
         xr0 = r.x+r.width*size;
         yl0 = r.y-size/4;
@@ -48,6 +53,8 @@ class Hall {
     }
 
     void addWall(Array<Wall> walls){
+        //create walls
+        //checks if the hall is vertical or horizontal
         if(id%2==1){
             walls.add(new Wall(xl0, yl0, xr0, yr0,wall));
             walls.add(new Wall(xl2, yl2, xr2, yr2,wall));
@@ -59,7 +66,6 @@ class Hall {
     }
 
     void drawHall(SpriteBatch batch){
-
         batch.draw(bitmap, x,y,width*size, height*size, 0,0,width*bitmap.getWidth()/24, height*bitmap.getHeight()/24, false, false);
 
     }
