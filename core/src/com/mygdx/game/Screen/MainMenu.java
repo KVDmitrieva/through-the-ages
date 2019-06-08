@@ -44,7 +44,7 @@ public class MainMenu implements Screen {
 
        stage = new Stage(mainClass.screenPort);
 
-       game = new MyButton("butplay.atlas", "butplay.json");
+       game = new MyButton("play");
        game.addListener(new InputListener() {
            public boolean touchDown (InputEvent event, float x, float y,
                                      int pointer, int button) {
@@ -55,7 +55,7 @@ public class MainMenu implements Screen {
        });
 
 
-       score = new MyButton("butscore.atlas", "butscore.json");
+       score = new MyButton("score");
        score.addListener(new InputListener() {
            public boolean touchDown (InputEvent event, float x, float y,
                                      int pointer, int button) {

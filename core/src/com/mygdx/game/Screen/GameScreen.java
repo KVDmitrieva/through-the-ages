@@ -102,7 +102,7 @@ public class GameScreen implements Screen{
         player = new Characters(character, (float)(width / 2),(float) (height / 2), 7, 6, 7, size);
 
         //exit button - go to main menu
-        exit = new MyButton("exitbut.atlas", "exitbut.json");
+        exit = new MyButton("exit");
         getParamsForButtons();
         exit.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y,
@@ -115,7 +115,7 @@ public class GameScreen implements Screen{
 
         });
         //button for dialog
-         yes = new MyButton("yes.atlas", "yes.json");
+         yes = new MyButton("yes");
          yes.addListener(new InputListener() {
              public boolean touchDown (InputEvent event, float x, float y,
                                        int pointer, int button) {
@@ -131,7 +131,7 @@ public class GameScreen implements Screen{
          });
 
          //button for dialog
-         no = new MyButton("no.atlas", "no.json");
+         no = new MyButton("no");
          no.addListener(new InputListener() {
              public boolean touchDown (InputEvent event, float x, float y,
                                        int pointer, int button) {
@@ -148,7 +148,7 @@ public class GameScreen implements Screen{
          yes.setVisible(false);
 
             //dialog of getting to another level
-            quest = new MyButton("quest.atlas", "quest.json");
+            quest = new MyButton("question");
             paramAlert();
             quest.setVisible(false);
 

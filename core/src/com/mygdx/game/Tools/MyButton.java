@@ -8,9 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class MyButton extends Button {
 
-    public MyButton(String atlasString, String skinString) {
+    public MyButton(String styleName) {
 
-        super(createSkin(atlasString, skinString), "default");
+        super(createSkin("buttons.atlas", "buttons.json"), styleName);
 
     }
 

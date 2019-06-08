@@ -1,0 +1,31 @@
+{
+"com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle": {
+	"default": {
+		"up": "inventorybut"
+	},
+	"close": {
+		"up": "close"
+	},
+	"back": {
+		"up": "back2"
+	},
+	"play": {
+		"up": "butplay"
+	},
+	"score": {
+		"up": "butscore"
+	},
+	"exit": {
+		"up": "exit2"
+	},
+	"yes": {
+		"up": "yes"
+	},
+	"no": {
+		"up": "no"
+	},
+	"question": {
+		"up": "question"
+	}
+}
+}

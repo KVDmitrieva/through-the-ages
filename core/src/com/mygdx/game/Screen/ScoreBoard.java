@@ -48,7 +48,7 @@ public class ScoreBoard implements Screen {
         getBGPosition();
         getParamsForLogo();
 
-        back = new MyButton("skinex.atlas","skinex.json");
+        back = new MyButton("back");
         back.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y,
                                       int pointer, int button) {
