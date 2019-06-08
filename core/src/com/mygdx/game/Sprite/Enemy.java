@@ -44,7 +44,7 @@ public class Enemy extends Sprites{
         }
         this.health = health + LEVEL*5;
         this.def = def;
-        this.attack = attack + LEVEL*2;
+        this.attack = attack + LEVEL*3;
         this.crit = crit;
         this.id = id;
     }

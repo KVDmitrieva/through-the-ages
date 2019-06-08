@@ -171,7 +171,7 @@ public class Room {
     }
 
     void addBoss(Texture boss, float x, float y){
-        enemies.add(new Enemy(boss,x+7*size, y+size, 7, 5,4, 200, 2, 20, 10, 7, size));
+        enemies.add(new Enemy(boss,x+7*size, y+size, 7, 5,4, 250, 2, 20, 10, 7, size));
     }
 
 }

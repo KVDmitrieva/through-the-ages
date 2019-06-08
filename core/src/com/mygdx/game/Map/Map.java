@@ -17,6 +17,7 @@ public class Map {
     private Texture floor, d1,d2, wall; //textures of floor, monsters and wall
 
 
+
     public Map(int width, int height, Texture floor, int size, Texture d1,Texture d2, Texture wall){
         this.width = width;
         this.height =height;

@@ -97,7 +97,7 @@ public class GameScreen implements Screen{
         map = new Map(width, height, floor, size, d1, d2, wall);
         map.generate(8); //auto-generating of map
 
-        if(LEVEL%5 != 0)createDoor(); // 5th, 10th, 15th etc levels with boss - door will be created after boss's death
+        createDoor();
 
         player = new Characters(character, (float)(width / 2),(float) (height / 2), 7, 6, 7, size);
 
@@ -121,8 +121,9 @@ public class GameScreen implements Screen{
                                        int pointer, int button) {
                  no.setVisible(false);
                  yes.setVisible(false);
-                quest.setVisible(false);
-                 LEVEL++; SCORE+=50;
+                 quest.setVisible(false);
+                 LEVEL++;
+                 SCORE+=50;
                  generate();
 
                  return true;
@@ -371,6 +372,7 @@ public class GameScreen implements Screen{
 
     private void createDoor() {
          //create door
+
         int idOfRoom = (int) (Math.random() * 100) % map.map_room.size();  //id of room where the door will be created
         Room r = map.map_room.get(idOfRoom); //get this room
         int x = r.x + ((int) (Math.random() * 100) % r.width) * r.size;  //coordinates of the door
@@ -451,7 +453,7 @@ public class GameScreen implements Screen{
         int dy2 = door.y + door.size;
 
         if (px1 > dx1 && px1 < dx2 || px2 > dx1 && px2 < dx2) {
-                return (py1 > dy1 && py1 < dy2 || py2 > dy1 && py2 < dy2) ;
+                return (py1 > dy1 && py1 < dy2 || py2 > dy1 && py2 < dy2 || dy1 < py2 && dy1 > py1 || dy2 < py2 && dy2 > py1) ;
 
         } return false;
 
@@ -494,7 +496,8 @@ public class GameScreen implements Screen{
         player.y = camera.position.y;
 
         map.generate(8);
-        if(LEVEL%5!=0)createDoor();
+        if(LEVEL%5!=0){createDoor();}
+        else doorCreated = false;
     }
 
     private void drawHealth(){
