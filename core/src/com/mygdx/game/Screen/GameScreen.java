@@ -26,18 +26,44 @@ import com.mygdx.game.Tools.MyDatabase;
 
 import java.util.Iterator;
 
+import static com.mygdx.game.Tools.Constants.HEIGHT;
+import static com.mygdx.game.Tools.Constants.SIZE;
+import static com.mygdx.game.Tools.Constants.WIDTH;
+import static com.mygdx.game.Tools.Constants.LEVEL;
+import static com.mygdx.game.Tools.Constants.SCORE;
+import static com.mygdx.game.Tools.Constants.ENEMIES;
+import static com.mygdx.game.Tools.Constants.bonusForNewLevel;
+import static com.mygdx.game.Tools.Constants.fontScale;
+import static com.mygdx.game.Tools.Constants.healthForBoss;
+import static com.mygdx.game.Tools.Constants.healthForEnemy;
+import static com.mygdx.game.Tools.Constants.healthHeight;
+import static com.mygdx.game.Tools.Constants.healthWidth;
+import static com.mygdx.game.Tools.Constants.maxForAttack;
+import static com.mygdx.game.Tools.Constants.maxForDef;
+import static com.mygdx.game.Tools.Constants.maxForHealth;
+import static com.mygdx.game.Tools.Constants.maxNumberOfRooms;
+import static com.mygdx.game.Tools.Constants.maxPlayerHealth;
+import static com.mygdx.game.Tools.Constants.minForAttack;
+import static com.mygdx.game.Tools.Constants.minForDef;
+import static com.mygdx.game.Tools.Constants.minForHealth;
+import static com.mygdx.game.Tools.Constants.noCoef;
+import static com.mygdx.game.Tools.Constants.partOfDef;
+import static com.mygdx.game.Tools.Constants.partOfHealthX;
+import static com.mygdx.game.Tools.Constants.partOfHealthX2;
+import static com.mygdx.game.Tools.Constants.partOfHealthY;
+import static com.mygdx.game.Tools.Constants.periodOfDrawingStats;
+import static com.mygdx.game.Tools.Constants.scoreForEnemy;
+import static com.mygdx.game.Tools.Constants.sizeExitButton;
+import static com.mygdx.game.Tools.Constants.yesCoef;
 
-public class GameScreen implements Screen{
 
-    public static int LEVEL;
-    public static int SCORE ;
-    public static int ENEMIES;
+public class GameScreen implements Screen {
 
 
     private MainClass mainClass;
     private Texture floor, d1, d2, wall, character, attack, health,
             def, doors, white, red, gameover;
-    private int width, height, size, velocity;
+    private int velocity;
     private GlyphLayout layout;
     private Map map;
     private OrthographicCamera camera;
@@ -54,31 +80,25 @@ public class GameScreen implements Screen{
     private boolean doorCreated = false;
 
 
-
-     GameScreen(final MainClass mainClass) {
+    GameScreen(final MainClass mainClass) {
         this.mainClass = mainClass;
 
         SCORE = 0;
         LEVEL = 1;
         ENEMIES = 0;
 
-        //screen params
-        width = Gdx.app.getGraphics().getWidth();
-        height = Gdx.app.getGraphics().getHeight();
-
         //game camera
-        camera = new OrthographicCamera(width, height);
-        camera.position.x = (float) width / 2;
-        camera.position.y = (float) height / 2;
+        camera = new OrthographicCamera(WIDTH, HEIGHT);
+        camera.position.x = (float) WIDTH / 2;
+        camera.position.y = (float) HEIGHT / 2;
 
-        size = width / 5; //basic size of objects (helps to scale map, sprites, etc)
 
-        velocity = width / 100;  //players speed of moving
+        velocity = WIDTH / 100;  //players speed of moving
 
         joyStick = new JoyStick(); //control player's move
 
-         //font for text with result of game
-         bitmapFont = new BitmapFont();
+        //font for text with result of game
+        bitmapFont = new BitmapFont();
         layout = new GlyphLayout(bitmapFont, "hello");
 
         floor = new Texture("floor1.png");
@@ -94,64 +114,64 @@ public class GameScreen implements Screen{
         white = new Texture("white.png");
         gameover = new Texture("gameover.png");
 
-        map = new Map(width, height, floor, size, d1, d2, wall);
-        map.generate(8); //auto-generating of map
+        map = new Map(floor, d1, d2, wall);
+        map.generate(maxNumberOfRooms); //auto-generating of map
 
         createDoor();
 
-        player = new Characters(character, (float)(width / 2),(float) (height / 2), 7, 6, 7, size);
+        player = new Characters(character, (float) (WIDTH / 2), (float) (HEIGHT / 2), 6, 7);
 
         //exit button - go to main menu
         exit = new MyButton("exit");
         getParamsForButtons();
         exit.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y,
-                                      int pointer, int button) {
+            public boolean touchDown(InputEvent event, float x, float y,
+                                     int pointer, int button) {
                 MyDatabase db = new MyDatabase();
-                if(SCORE!=0)db.pushData();
+                if (SCORE != 0) db.pushData();
                 mainClass.setScreen(new MainMenu(mainClass));
                 return true;
             }
 
         });
         //button for dialog
-         yes = new MyButton("yes");
-         yes.addListener(new InputListener() {
-             public boolean touchDown (InputEvent event, float x, float y,
-                                       int pointer, int button) {
-                 no.setVisible(false);
-                 yes.setVisible(false);
-                 quest.setVisible(false);
-                 LEVEL++;
-                 SCORE+=50;
-                 generate();
+        yes = new MyButton("yes");
+        yes.addListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y,
+                                     int pointer, int button) {
+                no.setVisible(false);
+                yes.setVisible(false);
+                quest.setVisible(false);
+                LEVEL++;
+                SCORE += bonusForNewLevel;
+                generate();
 
-                 return true;
-             }
+                return true;
+            }
 
-         });
+        });
 
-         //button for dialog
-         no = new MyButton("no");
-         no.addListener(new InputListener() {
-             public boolean touchDown (InputEvent event, float x, float y,
-                                       int pointer, int button) {
-                    no.setVisible(false);
-                    yes.setVisible(false);
-                    quest.setVisible(false);
-                    noCheck = true;
-                 return true;
-             }
+        //button for dialog
+        no = new MyButton("no");
+        no.addListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y,
+                                     int pointer, int button) {
+                no.setVisible(false);
+                yes.setVisible(false);
+                quest.setVisible(false);
+                noCheck = true;
+                return true;
+            }
 
-         });
+        });
 
-         no.setVisible(false);
-         yes.setVisible(false);
+        no.setVisible(false);
+        yes.setVisible(false);
 
-            //dialog of getting to another level
-            quest = new MyButton("question");
-            paramAlert();
-            quest.setVisible(false);
+        //dialog of getting to another level
+        quest = new MyButton("question");
+        paramAlert();
+        quest.setVisible(false);
 
 
         stage = new Stage(mainClass.screenPort, mainClass.batch);
@@ -162,7 +182,7 @@ public class GameScreen implements Screen{
         stage.addActor(yes);
 
         //Listener of tapping on screen (to move joystick)
-         Gesture gesture = new Gesture(joyStick);
+        Gesture gesture = new Gesture(joyStick);
         Gdx.input.setInputProcessor(new GestureDetector(gesture));
 
         InputMultiplexer multiplexer = new InputMultiplexer();
@@ -191,13 +211,13 @@ public class GameScreen implements Screen{
         mainClass.batch.setProjectionMatrix(camera.combined);
         mainClass.batch.begin();
 
-        if(player.health>0){
-        map.drawMap(mainClass.batch);
-        if(doorCreated)door.drawDoor(mainClass.batch);
-        onDrawEnemy();
-        drawStat();
-        drawHealth();
-        player.draw(mainClass.batch);
+        if (player.health > 0) {
+            map.drawMap(mainClass.batch);
+            if (doorCreated) door.drawDoor(mainClass.batch);
+            onDrawEnemy();
+            drawStat();
+            drawHealth();
+            player.draw(mainClass.batch);
 
         /*
         if the door was created and player intersects it,
@@ -205,14 +225,15 @@ public class GameScreen implements Screen{
        if player doesn't want to go, noCheck will become true and alert won't show again
        until player move away and come again
          */
-        if(doorCreated){
-            if (intersectDoor() ) {
-                if(!noCheck) {
-                  drawAlert();
-                }
-            } else noCheck = false;}
+            if (doorCreated) {
+                if (intersectDoor()) {
+                    if (!noCheck) {
+                        drawAlert();
+                    }
+                } else noCheck = false;
+            }
 
-        }else        endOfGame();
+        } else endOfGame();
 
 
         mainClass.batch.end();
@@ -258,7 +279,7 @@ public class GameScreen implements Screen{
     }
 
     private void moveCamera() {
-         //direction of joystick
+        //direction of joystick
         float knobX = joyStick.getKnobPercentX();
         float knobY = joyStick.getKnobPercentY();
 
@@ -308,21 +329,21 @@ public class GameScreen implements Screen{
             e.health = e.health - player.attack;
         }
         if (player.currentFrame == 3) //frame of character attack
-            player.health = player.health + (int) (player.def * 0.1f) - (e.attack);
+            player.health = player.health + (int) (player.def * partOfDef) - (e.attack);
 
     }
 
     private boolean closeToEnemy() {
-         //check the intersection with enemy
+        //check the intersection with enemy
         for (Room r : map.map_room) {
             Iterator<Enemy> i = r.enemies.iterator();
             while (i.hasNext()) {
                 Enemy e = i.next();
-                if (((player.x + player.spriteW <= e.x + e.spriteW&&player.x + player.spriteW >= e.x)||
-                        (player.x  <= e.x + e.spriteW&&player.x>= e.x))
-                        && ((((player.y + 3*player.spriteH / 4 <= e.y + e.spriteH)
-                        && player.y + 3*player.spriteH / 4 >= e.y)||(player.y  <= e.y + e.spriteH)
-                        && player.y >= e.y) || player.y<=e.y&&e.y<=player.y+player.spriteH) ){
+                if (((player.x + player.spriteW <= e.x + e.spriteW && player.x + player.spriteW >= e.x) ||
+                        (player.x <= e.x + e.spriteW && player.x >= e.x))
+                        && ((((player.y + 3 * player.spriteH / 4 <= e.y + e.spriteH)
+                        && player.y + 3 * player.spriteH / 4 >= e.y) || (player.y <= e.y + e.spriteH)
+                        && player.y >= e.y) || player.y <= e.y && e.y <= player.y + player.spriteH)) {
                     attacker = e; // player intersects with this enemy
                     return true;
                 }
@@ -332,7 +353,7 @@ public class GameScreen implements Screen{
     }
 
     private boolean closeToWall(float knobX, float knobY) {
-         //check intersection with walls
+        //check intersection with walls
         boolean closeTo = false, oneMore = false;
         int dir; //direction of player moving
         if (Math.abs(knobX) > Math.abs(knobY)) {
@@ -371,7 +392,7 @@ public class GameScreen implements Screen{
     }
 
     private void createDoor() {
-         //create door
+        //create door
 
         int idOfRoom = (int) (Math.random() * 100) % map.map_room.size();  //id of room where the door will be created
         Room r = map.map_room.get(idOfRoom); //get this room
@@ -401,7 +422,7 @@ public class GameScreen implements Screen{
                     e.drawe(mainClass.batch);
                 } else {
                     destroyEnemy(e);
-                    SCORE = SCORE+ e.id * 10;
+                    SCORE = SCORE + e.id * scoreForEnemy;
                     i.remove();
                     ENEMIES++;
                 }
@@ -410,28 +431,29 @@ public class GameScreen implements Screen{
     }
 
     private void destroyEnemy(Enemy e) {
-        if(e.id==7){ //boss id
-            player.health +=500;
-            if(player.health>1000) player.health = 1000;
+        if (e.id == 7) { //boss id
+            player.health += healthForBoss;
+            if (player.health > maxPlayerHealth) player.health = maxPlayerHealth;
             healths = true;
-            xStat = (int) e.x + (float) size / 2;
-            yStat = (int) e.y + (float) size / 2;
+            xStat = (int) e.x + (float) SIZE / 2;
+            yStat = (int) e.y + (float) SIZE / 2;
             createDoor();
         } else { //other monsters
             //coordinates of picture with reward
-            xStat = (int) e.x + (float) size / 2;
-            yStat = (int) e.y + (float) size / 2;
+            xStat = (int) e.x + (float) SIZE / 2;
+            yStat = (int) e.y + (float) SIZE / 2;
 
             int rand = (int) (Math.random() * 100);
+
             //reward - health for player
-            if (rand >= 10 && rand <= 30) {
-                player.health += 100;
+            if (rand >= minForHealth && rand <= maxForHealth) {
+                player.health += healthForEnemy;
                 healths = true;
-            } else if (rand >= 40 && rand <= 60) {
+            } else if (rand >= minForDef && rand <= maxForDef) {
                 //reward - more defense
                 player.def += 1;
                 defs = true;
-            } else if (rand >= 70 && rand <= 90) {
+            } else if (rand >= minForAttack && rand <= maxForAttack) {
                 //reward - more attack
                 player.attack += 5;
                 attacks = true;
@@ -441,7 +463,7 @@ public class GameScreen implements Screen{
     }
 
     private boolean intersectDoor() {
-         //check intersection with door
+        //check intersection with door
         int px1 = (int) player.x;
         int px2 = (int) player.x + (int) player.spriteW;
         int py1 = (int) player.y;
@@ -453,96 +475,98 @@ public class GameScreen implements Screen{
         int dy2 = door.y + door.size;
 
         if (px1 > dx1 && px1 < dx2 || px2 > dx1 && px2 < dx2) {
-                return (py1 > dy1 && py1 < dy2 || py2 > dy1 && py2 < dy2 || dy1 < py2 && dy1 > py1 || dy2 < py2 && dy2 > py1) ;
+            return (py1 > dy1 && py1 < dy2 || py2 > dy1 && py2 < dy2 || dy1 < py2 && dy1 > py1 || dy2 < py2 && dy2 > py1);
 
-        } return false;
+        }
+        return false;
 
 
     }
 
-    private void drawStat(){
-         //if player gets some reward then special icon will be drawn
-        if(healths){
-            mainClass.batch.draw(health, xStat, yStat, (float)size/2, (float)size/2, 0,0,health.getWidth(),health.getHeight(), false,false);
+    private void drawStat() {
+        //if player gets some reward then special icon will be drawn
+        if (healths) {
+            mainClass.batch.draw(health, xStat, yStat, (float) SIZE / 2, (float) SIZE / 2, 0, 0, health.getWidth(), health.getHeight(), false, false);
             fpsH++;
-            if(fpsH==10){
+            if (fpsH == periodOfDrawingStats) {
                 healths = false;
                 fpsH = 0;
             }
         }
-        if(attacks){
-            mainClass.batch.draw(attack, xStat, yStat, (float)size/2, (float)size/2, 0,0,attack.getWidth(),attack.getHeight(), false,false);
+        if (attacks) {
+            mainClass.batch.draw(attack, xStat, yStat, (float) SIZE / 2, (float) SIZE / 2, 0, 0, attack.getWidth(), attack.getHeight(), false, false);
             fpsA++;
-            if(fpsA==10){
+            if (fpsA == periodOfDrawingStats) {
                 attacks = false;
                 fpsA = 0;
             }
         }
-        if(defs){
-            mainClass.batch.draw(def, xStat, yStat, (float)size/2, (float)size/2, 0,0,def.getWidth(),def.getHeight(), false,false);
+        if (defs) {
+            mainClass.batch.draw(def, xStat, yStat, (float) SIZE / 2, (float) SIZE / 2, 0, 0, def.getWidth(), def.getHeight(), false, false);
             fpsD++;
-            if(fpsD==10){
+            if (fpsD == periodOfDrawingStats) {
                 defs = false;
                 fpsD = 0;
             }
         }
     }
 
-    private void generate(){
-         //when player goes to another level new map generates
-        camera.position.x = (float) width / 2;
-        camera.position.y = (float) height / 2;
+    private void generate() {
+        //when player goes to another level new map generates
+        camera.position.x = (float) WIDTH / 2;
+        camera.position.y = (float) HEIGHT / 2;
         player.x = camera.position.x;
         player.y = camera.position.y;
 
-        map.generate(8);
-        if(LEVEL%5!=0){createDoor();}
-        else doorCreated = false;
+        map.generate(maxNumberOfRooms);
+        if (LEVEL % 5 != 0) {
+            createDoor();
+        } else doorCreated = false;
     }
 
-    private void drawHealth(){
-         //health of player
-        float x = camera.position.x- (float)width/2 + 5;
-        float y = camera.position.y + (float) height/2.5f;
-        float xRect = (((float)player.health/10)*(float)width/600);
-        mainClass.batch.draw(white, x,y,(float)width/6, (float)height/25, 1,1,white.getWidth(), white.getHeight(), false,false);
-        mainClass.batch.draw(red, x,y,xRect, (float)height/25, 1,1,red.getWidth(), red.getHeight(), false,false);
+    private void drawHealth() {
+        //health of player
+        float x = camera.position.x - partOfHealthX;
+        float y = camera.position.y + partOfHealthY;
+        float xRect = (((float) player.health / 10) * partOfHealthX2);
+        mainClass.batch.draw(white, x, y, healthWidth, healthHeight, 1, 1, white.getWidth(), white.getHeight(), false, false);
+        mainClass.batch.draw(red, x, y, xRect, healthHeight, 1, 1, red.getWidth(), red.getHeight(), false, false);
 
 
     }
 
-    private void endOfGame(){
-        camera.position.x = (float) width / 2;
-        camera.position.y = (float) height / 2;
+    private void endOfGame() {
+        camera.position.x = (float) WIDTH / 2;
+        camera.position.y = (float) HEIGHT / 2;
         //big label "game over"
-            mainClass.batch.draw(gameover, camera.position.x-(float)2*width/5,
-                    (camera.position.y), (float)4*width/5,(float)height/3,0,0,
-                    gameover.getWidth(), gameover.getHeight(), false, false);
+        mainClass.batch.draw(gameover, camera.position.x - (float) 2 * WIDTH / 5,
+                (camera.position.y), (float) 4 * WIDTH / 5, (float) HEIGHT / 3, 0, 0,
+                gameover.getWidth(), gameover.getHeight(), false, false);
 
-            //text with the game score
-            String finalScore = "Your score is "+ SCORE;
-            bitmapFont.getData().setScale((float)size/50);
-            layout.setText(bitmapFont, finalScore);
-            bitmapFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        //text with the game score
+        String finalScore = "Your score is " + SCORE;
+        bitmapFont.getData().setScale(fontScale);
+        layout.setText(bitmapFont, finalScore);
+        bitmapFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-            bitmapFont.draw(mainClass.batch,layout, camera.position.x-layout.width/2, camera.position.y-layout.height);
+        bitmapFont.draw(mainClass.batch, layout, camera.position.x - layout.width / 2, camera.position.y - layout.height);
 
     }
 
-    private void getParamsForButtons(){
+    private void getParamsForButtons() {
         //position and size of exit button
-        float size = (float)this.width/10;
+        float size = sizeExitButton;
 
         exit.setHeight(size);
         exit.setWidth(size);
 
-        float x = camera.position.x + (float) this.width/2 - size;
-        float y = camera.position.y + (float)this.height/2 - size;
+        float x = camera.position.x + (float) WIDTH / 2 - size;
+        float y = camera.position.y + (float) HEIGHT / 2 - size;
         exit.setPosition(x, y);
 
     }
 
-    private void paramAlert(){
+    private void paramAlert() {
         //position and size of alert's components
         //params for alert
         float xQ, yQ, wQ, hQ;
@@ -553,36 +577,36 @@ public class GameScreen implements Screen{
         //params button no
         float xN, yN, wN, hN;
 
-         wQ = (float)3*width/4;
-         hQ =  wQ/4;
+        wQ = (float) 3 * WIDTH / 4;
+        hQ = wQ / 4;
 
-         xQ = camera.position.x - wQ/2;
-         yQ = camera.position.y - hQ/2;
+        xQ = camera.position.x - wQ / 2;
+        yQ = camera.position.y - hQ / 2;
 
-         wY = wQ/4;
-         hY = wY/4;
+        wY = wQ / 4;
+        hY = wY / 4;
 
-         wN = wY;
-         hN = hY;
+        wN = wY;
+        hN = hY;
 
-         xY = xQ + wQ/2 -1.1f*wY;
-         yY = yQ+wY/5;
+        xY = xQ + wQ / 2 - yesCoef * wY;
+        yY = yQ + wY / 5;
 
-         xN = xQ + wQ/2 +0.1f*wN;
-         yN = yY;
+        xN = xQ + wQ / 2 + noCoef * wN;
+        yN = yY;
 
-         yes.setSize(wY, hY);
-         yes.setPosition(xY, yY);
+        yes.setSize(wY, hY);
+        yes.setPosition(xY, yY);
 
-         no.setSize(wN, hN);
-         no.setPosition(xN, yN);
+        no.setSize(wN, hN);
+        no.setPosition(xN, yN);
 
-         quest.setPosition(xQ,yQ);
-         quest.setSize(wQ, hQ);
+        quest.setPosition(xQ, yQ);
+        quest.setSize(wQ, hQ);
 
     }
 
-    private void drawAlert(){
+    private void drawAlert() {
         no.setVisible(true);
         yes.setVisible(true);
         quest.setVisible(true);

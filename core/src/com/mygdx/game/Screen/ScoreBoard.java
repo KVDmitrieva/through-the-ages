@@ -17,41 +17,52 @@ import com.mygdx.game.Tools.MyDatabase;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.Tools.Constants.HEIGHT;
+import static com.mygdx.game.Tools.Constants.WIDTH;
+import static com.mygdx.game.Tools.Constants.backgroundX;
+import static com.mygdx.game.Tools.Constants.buttonHeight;
+import static com.mygdx.game.Tools.Constants.buttonWidth;
+import static com.mygdx.game.Tools.Constants.buttonX;
+import static com.mygdx.game.Tools.Constants.logoHeight;
+import static com.mygdx.game.Tools.Constants.logoWidth;
+import static com.mygdx.game.Tools.Constants.logoX;
+import static com.mygdx.game.Tools.Constants.scoreLogoY;
+import static com.mygdx.game.Tools.Constants.scrollPaneHeight;
+import static com.mygdx.game.Tools.Constants.scrollPaneScale;
+import static com.mygdx.game.Tools.Constants.scrollPaneWidth;
+import static com.mygdx.game.Tools.Constants.scrollPaneX;
+import static com.mygdx.game.Tools.Constants.scrollPaneY;
+import static com.mygdx.game.Tools.Constants.sizeOfBackground;
+
 public class ScoreBoard implements Screen {
 
     private MainClass mainClass;
     private Texture background, title;
-    private int width, height;
 
 
     //params for background image
-    private float xBG, yBG;
-    private int sizeBG;
+    private float xBG = backgroundX;
+    private int sizeBG = sizeOfBackground;
 
     //params for logo
-    private float xLogo, yLogo;
-    private int widthLogo, heightLogo;
+    private float xLogo = logoX, yLogo = scoreLogoY;
+    private int widthLogo = logoWidth, heightLogo = logoHeight;
 
     private MyButton back;
     private Stage stage;
 
 
-    ScoreBoard (final MainClass mainClass){
+    ScoreBoard(final MainClass mainClass) {
         this.mainClass = mainClass;
 
         background = new Texture("main1.png");
         title = new Texture("score.png");
 
-        width = Gdx.app.getGraphics().getWidth();
-        height = Gdx.app.getGraphics().getHeight();
-
-        getBGPosition();
-        getParamsForLogo();
 
         back = new MyButton("back");
         back.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y,
-                                      int pointer, int button) {
+            public boolean touchDown(InputEvent event, float x, float y,
+                                     int pointer, int button) {
                 //go to main menu
                 mainClass.setScreen(new MainMenu(mainClass));
                 return true;
@@ -65,13 +76,14 @@ public class ScoreBoard implements Screen {
 
         //list with statistic of all games
         List list = new List<String>(skin);
-        list.setHeight(height);
+        list.setHeight(HEIGHT);
+        list.setWidth(scrollPaneWidth);
 
         MyDatabase db = new MyDatabase();
         ArrayList<String> str = db.selectAll();
-        int k=0;
+        int k = 0;
         String[] st = new String[str.size()];
-        for (String s:str){
+        for (String s : str) {
             st[k] = s;
             k++;
         }
@@ -79,12 +91,11 @@ public class ScoreBoard implements Screen {
         list.setItems(st);
 
         ScrollPane scrollPane = new ScrollPane(list);
-        scrollPane.setWidth((float)width/2);
-        scrollPane.setHeight((float)height/7);
-        scrollPane.scaleBy(1.5f);
-        scrollPane.setPosition(scrollPane.getWidth()/4, (float)height/2-scrollPane.getHeight()/2);
-        scrollPane.setScrollPercentY(100);
-
+        scrollPane.setWidth(scrollPaneWidth);
+        scrollPane.setHeight(scrollPaneHeight);
+        scrollPane.scaleBy(scrollPaneScale);
+        scrollPane.setPosition(scrollPaneX, scrollPaneY);
+        //scrollPane.setScrollPercentY(100);
 
 
         stage = new Stage(mainClass.screenPort);
@@ -105,7 +116,7 @@ public class ScoreBoard implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         mainClass.batch.begin();
-        mainClass.batch.draw(background, xBG, yBG, sizeBG, sizeBG);
+        mainClass.batch.draw(background, xBG, 0, sizeBG, sizeBG);
         mainClass.batch.draw(title, xLogo, yLogo, widthLogo, heightLogo);
         mainClass.batch.end();
         stage.act(Gdx.graphics.getDeltaTime());
@@ -138,46 +149,14 @@ public class ScoreBoard implements Screen {
 
     }
 
-    private void getBGPosition(){
-        //set position and size for background
-        if (width>height) {
-            sizeBG = width;
-            xBG = 0;
-            yBG = 0-((1-(float)height/(float)width)*sizeBG)/2;
-        } else {
-            sizeBG = height;
-            yBG = 0;
-            xBG =  0-((1-(float)width/(float)height)*sizeBG)/2;
-        }
-    }
-
-    private void getParamsForLogo(){
-        //set position and size for title
-        if(width>height){
-            widthLogo = 4*(width/5);
-            heightLogo = height/4;
-
-
-        } else{
-            widthLogo = 19*(width/20);
-            heightLogo = height/5;
-
-
-        }
-        yLogo = 7*(float)height/9;
-        xLogo = (float)width/2-(float)widthLogo/2;
-
-
-    }
-
-    private void getParamsForButtons(){
+    private void getParamsForButtons() {
         //set position and size for button
-        float height = (float)this.width/10;
-        float width = (float)this.width/2;
+        float height = buttonHeight;
+        float width = buttonWidth;
 
         back.setHeight(height);
         back.setWidth(width);
 
-        back.setPosition((float)this.width/2-width/2, height);
+        back.setPosition(buttonX, height);
     }
 }

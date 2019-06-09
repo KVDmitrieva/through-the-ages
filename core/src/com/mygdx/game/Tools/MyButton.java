@@ -14,7 +14,7 @@ public class MyButton extends Button {
 
     }
 
-    private static  Skin createSkin(String atlasString, String skinString){
+    private static Skin createSkin(String atlasString, String skinString) {
         Skin skin = new Skin();
         TextureAtlas atlas = new TextureAtlas(atlasString);
         skin.addRegions(atlas);

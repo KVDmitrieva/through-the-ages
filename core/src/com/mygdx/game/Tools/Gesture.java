@@ -8,10 +8,11 @@ public class Gesture implements GestureDetector.GestureListener {
     private JoyStick joyStick;
 
 
-    public Gesture(JoyStick joyStick){
+    public Gesture(JoyStick joyStick) {
         this.joyStick = joyStick;
 
     }
+
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
 
@@ -22,7 +23,7 @@ public class Gesture implements GestureDetector.GestureListener {
     //set joystick position
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        joyStick.setX(x-joyStick.getWidth()/2);
+        joyStick.setX(x - joyStick.getWidth() / 2);
         joyStick.setY(joyStick.getHeight());
         return true;
     }

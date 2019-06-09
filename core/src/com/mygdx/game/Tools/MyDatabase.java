@@ -9,9 +9,9 @@ import com.badlogic.gdx.sql.SQLiteGdxException;
 import java.util.ArrayList;
 
 
-import static com.mygdx.game.Screen.GameScreen.ENEMIES;
-import static com.mygdx.game.Screen.GameScreen.LEVEL;
-import static com.mygdx.game.Screen.GameScreen.SCORE;
+import static com.mygdx.game.Tools.Constants.LEVEL;
+import static com.mygdx.game.Tools.Constants.SCORE;
+import static com.mygdx.game.Tools.Constants.ENEMIES;
 
 
 public class MyDatabase {
@@ -30,13 +30,13 @@ public class MyDatabase {
 
     private static final int NUM_COLUMN_SCORE = 1;
     private static final int NUM_COLUMN_LEVEL = 2;
-    private static final int NUM_COLUMN_ENEMIES= 3;
+    private static final int NUM_COLUMN_ENEMIES = 3;
 
     private static final String DATABASE_CREATE = "create table if not exists "
             + TABLE_STATISTIC + "(" + KEY_ID
             + " integer primary key autoincrement, " + KEY_SCORE + " INT, " +
-            KEY_LEVEL + " INT,"+
-            KEY_ENEMIES+" INT);";
+            KEY_LEVEL + " INT," +
+            KEY_ENEMIES + " INT);";
 
 
     public MyDatabase() {
@@ -47,8 +47,6 @@ public class MyDatabase {
         dbHandler.setupDatabase();
 
     }
-
-
 
 
     public ArrayList<String> selectAll() {
@@ -67,10 +65,10 @@ public class MyDatabase {
         }
         if (mCursor != null) {
             while (mCursor.next()) {
-                int finalScore= mCursor.getInt(NUM_COLUMN_SCORE);
+                int finalScore = mCursor.getInt(NUM_COLUMN_SCORE);
                 int level = mCursor.getInt(NUM_COLUMN_LEVEL);
-                int enemy=mCursor.getInt(NUM_COLUMN_ENEMIES);
-                String totalScore = "Score "+finalScore+"   Level "+level+"   Enemies "+enemy;
+                int enemy = mCursor.getInt(NUM_COLUMN_ENEMIES);
+                String totalScore = "Score " + finalScore + "   Level " + level + "   Enemies " + enemy;
                 arr.add(totalScore);
             }
         }
@@ -84,7 +82,7 @@ public class MyDatabase {
         return arr;
     }
 
-   public void pushData(){
+    public void pushData() {
 
         try {
             dbHandler.openOrCreateDatabase();
@@ -94,7 +92,7 @@ public class MyDatabase {
         }
 
         try {
-            dbHandler.execSQL("INSERT INTO statistic ('score', 'level', 'enemy') VALUES ('"+SCORE+"','" +LEVEL+"','"+ENEMIES+"')");
+            dbHandler.execSQL("INSERT INTO statistic ('score', 'level', 'enemy') VALUES ('" + SCORE + "','" + LEVEL + "','" + ENEMIES + "')");
 
         } catch (SQLiteGdxException e) {
             e.printStackTrace();

@@ -4,9 +4,16 @@ package com.mygdx.game.Map;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.game.Sprite.Boss;
+import com.mygdx.game.Sprite.Dino1;
+import com.mygdx.game.Sprite.Dino2;
 import com.mygdx.game.Sprite.Enemy;
 
 import java.util.ArrayList;
+
+import static com.mygdx.game.Tools.Constants.SIZE;
+import static com.mygdx.game.Tools.Constants.scaleSizeOfFloor;
+import static com.mygdx.game.Tools.Constants.scaleWidthOfEnemy;
 
 
 public class Room {
@@ -29,7 +36,7 @@ public class Room {
             hxl2 = 0, hyl2 = 0, hxr2 = 0, hyr2 = 0, hxl3 = 0, hyl3 = 0, hxr3 = 0, hyr3 = 0;
 
 
-    Room(int x, int y, int width, int height, int size, Texture image, Texture wall) {
+    Room(int x, int y, int width, int height, Texture image, Texture wall) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -39,7 +46,7 @@ public class Room {
         }
         bitmap = image;
         this.wall = wall;
-        this.size = size;
+        this.size = SIZE;
     }
 
     int numberOfHalls() {
@@ -110,68 +117,69 @@ public class Room {
 
     void addWall(Array<Wall> walls) {
         //create new walls
-        if (idOfHalls[0]) walls.add(new Wall(xl0, yl0, xr0, yr0,wall));
+        if (idOfHalls[0]) walls.add(new Wall(xl0, yl0, xr0, yr0, wall));
         else {
-            walls.add(new Wall(xl0, yl0, hxl0, hyr0,wall));
-            walls.add(new Wall(hxr0, hyl0, xr0, yr0,wall));
+            walls.add(new Wall(xl0, yl0, hxl0, hyr0, wall));
+            walls.add(new Wall(hxr0, hyl0, xr0, yr0, wall));
         }
-        if (idOfHalls[1]) walls.add(new Wall(xl1, yl1, xr1, yr1,wall));
+        if (idOfHalls[1]) walls.add(new Wall(xl1, yl1, xr1, yr1, wall));
         else {
-            walls.add(new Wall(xl1, yl1, hxr1, hyl1,wall));
-            walls.add(new Wall(hxl1, hyr1, xr1, yr1,wall));
+            walls.add(new Wall(xl1, yl1, hxr1, hyl1, wall));
+            walls.add(new Wall(hxl1, hyr1, xr1, yr1, wall));
         }
-        if (idOfHalls[2]) walls.add(new Wall(xl2, yl2, xr2, yr2,wall));
+        if (idOfHalls[2]) walls.add(new Wall(xl2, yl2, xr2, yr2, wall));
         else {
-            walls.add(new Wall(xl2, yl2, hxl2, hyr2,wall));
-            walls.add(new Wall(hxr2, hyl2, xr2, yr2,wall));
+            walls.add(new Wall(xl2, yl2, hxl2, hyr2, wall));
+            walls.add(new Wall(hxr2, hyl2, xr2, yr2, wall));
 
         }
-        if (idOfHalls[3]) walls.add(new Wall(xl3, yl3, xr3, yr3,wall));
+        if (idOfHalls[3]) walls.add(new Wall(xl3, yl3, xr3, yr3, wall));
         else {
-            walls.add(new Wall(xl3, yl3, hxr3, hyl3,wall));
-            walls.add(new Wall(hxl3, hyr3, xr3, yr3,wall));
+            walls.add(new Wall(xl3, yl3, hxr3, hyl3, wall));
+            walls.add(new Wall(hxl3, hyr3, xr3, yr3, wall));
         }
     }
 
-        void addEnemies(Texture d1, Texture d2){
-            int number = width*height/5; //number of enemies in room
-            for(int i = 0; i<number; i++){
-                float xS = x+(float)size/2+((float)(Math.random()*1000)%width)*size;
-                float yS = y+(float)size/2+((float)(Math.random()*1000)%height)*size;
+    void addEnemies(Texture d1, Texture d2) {
+        int number = width * height / 5; //number of enemies in room
+        for (int i = 0; i < number; i++) {
+            float xS = x + (float) size / 2 + ((float) (Math.random() * 1000) % width) * size;
+            float yS = y + (float) size / 2 + ((float) (Math.random() * 1000) % height) * size;
 
-                if(xS>x&&xS+1.2f*size<x+width*size&&yS+size<y+height*size&&yS>y){
-                    boolean noneIntersect = true; //check intersection with borders of the room
-                    if(enemies.size()>0){
-                        for(Enemy enemy:enemies){ //check intersection with other enemies
-                            if(enemy.x>=xS&&enemy.x<=xS+enemy.spriteW||
-                                    enemy.x+enemy.spriteW>=xS&&enemy.x+enemy.spriteW<=xS+enemy.spriteW){
-                                if(enemy.y>=yS&&enemy.y<=yS+enemy.spriteH||
-                                        enemy.y+enemy.spriteH>=yS&&enemy.y+enemy.spriteH<=yS+enemy.spriteW){
-                                    noneIntersect = false;
-                                }
+            if (xS > x && xS + scaleWidthOfEnemy * size < x + width * size && yS + size < y + height * size && yS > y) {
+                boolean noneIntersect = true; //check intersection with borders of the room
+                if (enemies.size() > 0) {
+                    for (Enemy enemy : enemies) { //check intersection with other enemies
+                        if (enemy.x >= xS && enemy.x <= xS + enemy.spriteW ||
+                                enemy.x + enemy.spriteW >= xS && enemy.x + enemy.spriteW <= xS + enemy.spriteW) {
+                            if (enemy.y >= yS && enemy.y <= yS + enemy.spriteH ||
+                                    enemy.y + enemy.spriteH >= yS && enemy.y + enemy.spriteH <= yS + enemy.spriteW) {
+                                noneIntersect = false;
                             }
                         }
                     }
+                }
 
-                    if(noneIntersect){
-                        if (Math.random()*100<50) {
-                            enemies.add( new Enemy(d1, xS,yS,7, 5, 4, 50, 2, 5, 10, 1,size));
-                        }
-                        else
-                            enemies.add(new Enemy(d2,xS,yS,7, 5, 3, 100, 2, 10, 10, 2,size));
+                if (noneIntersect) {
+                    if (Math.random() * 100 < 50) {
+                        enemies.add(new Dino1(d1, xS, yS, 5, 4));
+                    } else
+                        enemies.add(new Dino2(d2, xS, yS, 5, 3));
 
-                    }}}
-
+                }
+            }
         }
-
-
-    void drawRoom(SpriteBatch batch) {
-        batch.draw(bitmap, x,y,width*size, height*size, 0,0,width*bitmap.getWidth()/24, height*bitmap.getHeight()/24, false, false);
 
     }
 
-    void addBoss(Texture boss, float x, float y){
-        enemies.add(new Enemy(boss,x+7*size, y+size, 7, 5,4, 250, 2, 20, 10, 7, size));
+
+    void drawRoom(SpriteBatch batch) {
+        batch.draw(bitmap, x, y, width * size, height * size, 0, 0, width * bitmap.getWidth() / scaleSizeOfFloor, height * bitmap.getHeight() / scaleSizeOfFloor, false, false);
+
+    }
+
+    void addBoss(Texture boss, float x, float y) {
+        enemies.add(new Boss(boss, x + 7 * size, y + size, 5, 4));
     }
 
 }
